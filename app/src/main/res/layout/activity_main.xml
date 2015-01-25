@@ -1,3 +1,4 @@
+<!--
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -7,5 +8,72 @@
 
     <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+</RelativeLayout>
+-->
+
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context=".Connections"
+    android:background="#000000">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="Turn Radios On"
+        android:id="@+id/button_radios_on"
+        android:onClick="turnOnRadios"
+        android:textSize="10sp"
+        android:height="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/button_toggle_listen" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="Turn Off Cell"
+        android:id="@+id/button_cell_off"
+        android:onClick="disableCell"
+        android:textSize="10sp"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/button_clear" />
+
+    <ScrollView android:layout_width="fill_parent" android:layout_height="fill_parent"
+        android:id="@+id/scrollView"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="31dp">
+
+        <TextView android:id="@+id/edit_text"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/button_cell_on"
+            android:layout_alignParentStart="true"
+            android:nestedScrollingEnabled="true"
+            android:textColor="#ee0000"
+            android:textSize="10sp" />
+
+    </ScrollView>
+
+    <Button android:id="@+id/button_clear"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="Clear"
+        android:onClick="clearText"
+        android:textSize="10sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/scrollView" />
+
+    <Button android:id="@+id/button_toggle_listen"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:text="Stop"
+        android:onClick="toggleListen"
+        android:textSize="10sp"
+        android:layout_alignParentTop="true" />
 
 </RelativeLayout>
