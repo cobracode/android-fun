@@ -9,7 +9,6 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
-import android.util.Log;
 import android.widget.TextView;
 
 import java.util.List;
