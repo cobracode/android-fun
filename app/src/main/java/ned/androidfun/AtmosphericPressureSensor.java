@@ -7,7 +7,7 @@ import android.util.Log;
 
 class AtmosphericPressureSensor extends ListeningSensor {
     private static final String TAG = "AtmosphericPressureSensor";
-    private float pressureMBR = 0.0f;
+    private float millibars = 0.0f;
 
     AtmosphericPressureSensor(final SensorManager sensorManager, final int interval) {
         super(sensorManager, Sensor.TYPE_PRESSURE, interval);
@@ -17,12 +17,12 @@ class AtmosphericPressureSensor extends ListeningSensor {
     @Override
     public void onSensorChanged(final SensorEvent event) {
         if ((changeCount++ % changeInterval) == 0) {
-            pressureMBR = event.values[0];
-            Log.v(TAG, "onSensorChanged(): pressureMBR = " + pressureMBR);
+            millibars = event.values[0];
+            Log.v(TAG, "onSensorChanged(): millibars = " + millibars);
         }
     }
 
-    public float getPressureMBR() {
-        return pressureMBR;
+    public float getMillibars() {
+        return millibars;
     }
 }

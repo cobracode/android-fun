@@ -5,34 +5,34 @@ import android.hardware.SensorManager;
 import android.util.Log;
 
 class SensedEnvironment {
-    private static final String TAG = "Environment";
+    private static final String TAG = "SensedEnvironment";
     private SensorManager environmentSensorManager = null;
     private AtmosphericPressureSensor pressureSensor = null;
     private LightSensor lightSensor = null;
 
     SensedEnvironment(final Context context, final int interval) {
-        Log.v(TAG, "Environment() begin");
+        Log.v(TAG, "SensedEnvironment() begin");
         environmentSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
         pressureSensor = new AtmosphericPressureSensor(environmentSensorManager, interval);
 
         // Light sensor occurs as light values change and not constantly;
         // typically need much lower interval, like ~3-5
         lightSensor = new LightSensor(environmentSensorManager, 3);
-        Log.v(TAG, "Environment() end");
+        Log.v(TAG, "SensedEnvironment() end");
     }
 
     public void registerListeners() {
-        Log.v(TAG, "registerSensorListener() begin");
-        pressureSensor.registerSensorListener(environmentSensorManager);
-        lightSensor.registerSensorListener(environmentSensorManager);
-        Log.v(TAG, "registerSensorListener() end");
+        Log.v(TAG, "registerListeners() begin");
+        pressureSensor.register(environmentSensorManager);
+        lightSensor.register(environmentSensorManager);
+        Log.v(TAG, "registerListeners() end");
     }
 
-    public void unRegisterListeners() {
-        Log.v(TAG, "unRegisterSensorListener() begin");
-        pressureSensor.unregisterSensorListener(environmentSensorManager);
-        lightSensor.unregisterSensorListener(environmentSensorManager);
-        Log.v(TAG, "unRegisterSensorListener() end");
+    public void unregisterListeners() {
+        Log.v(TAG, "unregisterListeners() begin");
+        pressureSensor.unregister(environmentSensorManager);
+        lightSensor.unregister(environmentSensorManager);
+        Log.v(TAG, "unregisterListeners() end");
     }
 
     public double getHumidity() {
@@ -41,12 +41,12 @@ class SensedEnvironment {
         return humidity;
     }
 
-    public float getIlluminanceLX() {
+    public float getIlluminance() {
         return lightSensor.getIlluminance();
     }
 
-    public float getPressureMBR() {
-        return pressureSensor.getPressureMBR();
+    public float getMillibars() {
+        return pressureSensor.getMillibars();
     }
 
     public double getTemperatureF() {

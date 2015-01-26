@@ -24,12 +24,12 @@ abstract class ListeningSensor implements SensorEventListener, SensorListenerReg
     }
 
     @Override
-    public void registerSensorListener(final SensorManager manager) {
+    public void register(final SensorManager manager) {
         manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
-    public void unregisterSensorListener(final SensorManager manager) {
+    public void unregister(final SensorManager manager) {
         manager.unregisterListener(this);
     }
 }
