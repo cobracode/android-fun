@@ -26,7 +26,7 @@ public class MainActivity extends ActionBarActivity {
     private SmsManager sms = SmsManager.getDefault();
     private SmsListener smsListener = null;
     private Parrot parrot = null;
-    private Environment environment = null;
+    private SensedEnvironment sensedEnvironment = null;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -42,11 +42,10 @@ public class MainActivity extends ActionBarActivity {
         connectivityManager = new IConnectivityManager(this);
 
         smsListener = new SmsListener();
-        environment = new Environment(this, 25);
-        Logger.log(TAG, Double.toString(environment.getPressureMBR()));
+        sensedEnvironment = new SensedEnvironment(this, 30);
 
         //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
-        //sms.sendMultipartTextMessage("9259630843", null, sms.divideMessage(message), null, null);
+        //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
 
         Log.v(TAG, "onCreate() end; listening = " + listening);
     }
@@ -63,14 +62,14 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "onResume() begin; listening = " + listening);
         super.onResume();
         //registerReceiver(smsListener, IntentFilter);
-        environment.registerListener();
+        sensedEnvironment.registerListeners();
         Log.v(TAG, "onResume() end");
     }
 
     @Override
     public void onPause() {
         Log.v(TAG, "onPause() begin");
-        environment.unRegisterListener();
+        sensedEnvironment.unRegisterListeners();
         super.onPause();
         Log.v(TAG, "onPause() end; listening = " + listening);
     }
