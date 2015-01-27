@@ -18,7 +18,7 @@ class LightSensor extends ListeningSensor {
     public void onSensorChanged(final SensorEvent event) {
         if ((changeCount++ % changeInterval) == 0) {
             illuminance = event.values[0];
-            Log.v(TAG, "onSensorChanged(): illuminance = " + illuminance);
+            Logger.log(TAG, "onSensorChanged(): illuminance = " + illuminance);
         }
     }
 

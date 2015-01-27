@@ -69,7 +69,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onPause() {
         Log.v(TAG, "onPause() begin");
-        sensedEnvironment.unRegisterListeners();
+        sensedEnvironment.unregisterListeners();
         super.onPause();
         Log.v(TAG, "onPause() end; listening = " + listening);
     }

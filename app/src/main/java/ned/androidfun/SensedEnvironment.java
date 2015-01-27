@@ -35,6 +35,10 @@ class SensedEnvironment {
         Log.v(TAG, "unregisterListeners() end");
     }
 
+    public float getAltitudeAirPressure() {
+        return environmentSensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressureSensor.getMillibars());
+    }
+
     public double getHumidity() {
         double humidity = 0.0;
 
