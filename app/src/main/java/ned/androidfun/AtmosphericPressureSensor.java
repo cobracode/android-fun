@@ -21,7 +21,8 @@ class AtmosphericPressureSensor extends ListeningSensor {
         if ((changeCount++ % changeInterval) == 0) {
             millibars = event.values[0];
             Logger.log(TAG, "onSensorChanged(): millibars = " + millibars);
-            Logger.log(TAG, "onSensorChanged(): alt = " + 3.281 * sensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, millibars) + " ft");
+            Logger.log(TAG, "onSensorChanged(): alt = " +
+                    Conversions.metersToFeet(sensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, millibars)) + " ft");
         }
     }
 

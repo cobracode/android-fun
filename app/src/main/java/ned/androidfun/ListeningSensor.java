@@ -14,6 +14,11 @@ abstract class ListeningSensor implements SensorEventListener, SensorListenerReg
     ListeningSensor(final SensorManager sensorManager, final int sensorType, final int interval) {
         Log.v(TAG, "ListeningSensor() begin");
         sensor = sensorManager.getDefaultSensor(sensorType);
+
+        if (null == sensor) {
+            Log.w(TAG, "ListeningSensor(): sensor type not found on device: " + sensorType);
+        }
+
         changeInterval = interval;
         Log.v(TAG, "ListeningSensor() end");
     }
@@ -25,11 +30,15 @@ abstract class ListeningSensor implements SensorEventListener, SensorListenerReg
 
     @Override
     public void register(final SensorManager manager) {
-        manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        if (null != sensor) {
+            manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
     public void unregister(final SensorManager manager) {
-        manager.unregisterListener(this);
+        if (null != sensor) {
+            manager.unregisterListener(this);
+        }
     }
 }

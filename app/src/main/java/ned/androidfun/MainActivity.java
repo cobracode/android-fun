@@ -42,7 +42,7 @@ public class MainActivity extends ActionBarActivity {
         connectivityManager = new IConnectivityManager(this);
 
         smsListener = new SmsListener();
-        sensedEnvironment = new SensedEnvironment(this, 30);
+        sensedEnvironment = new SensedEnvironment(this, 40);
 
         //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
