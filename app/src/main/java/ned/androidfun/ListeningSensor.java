@@ -31,7 +31,11 @@ abstract class ListeningSensor implements SensorEventListener, SensorListenerReg
     @Override
     public void register(final SensorManager manager) {
         if (null != sensor) {
-            manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            //manager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            
+            // Trying with a delay of 1 second, using a 1 second hardware
+            // queue for power saving.
+            manager.registerListener(this, sensor, 1000000, 1000000);
         }
     }
 
