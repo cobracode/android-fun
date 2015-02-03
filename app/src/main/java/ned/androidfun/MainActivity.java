@@ -27,6 +27,7 @@ public class MainActivity extends ActionBarActivity {
     private SmsListener smsListener = null;
     private Parrot parrot = null;
     private SensedEnvironment sensedEnvironment = null;
+    private Wifi wifi = null;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -42,7 +43,8 @@ public class MainActivity extends ActionBarActivity {
         connectivityManager = new IConnectivityManager(this);
 
         smsListener = new SmsListener();
-        sensedEnvironment = new SensedEnvironment(this, 40);
+        sensedEnvironment = new SensedEnvironment(this, 50);
+        wifi = new Wifi(this);
 
         //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);

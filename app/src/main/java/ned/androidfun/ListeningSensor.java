@@ -35,7 +35,7 @@ abstract class ListeningSensor implements SensorEventListener, SensorListenerReg
             
             // Trying with a delay of 1 second, using a 1 second hardware
             // queue for power saving.
-            manager.registerListener(this, sensor, 1000000, 1000000);
+            manager.registerListener(this, sensor, 5000000, 5000000);
         }
     }
 
