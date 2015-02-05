@@ -38,13 +38,14 @@ public class MainActivity extends ActionBarActivity {
         mapXMLIDs();
         Logger.setText(text);
 
+        wifi = new Wifi(this);
         parrot = new Parrot(this);
         initCellListener();
         connectivityManager = new IConnectivityManager(this);
 
         smsListener = new SmsListener();
         sensedEnvironment = new SensedEnvironment(this, 50);
-        wifi = new Wifi(this);
+
 
         //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
@@ -64,14 +65,14 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "onResume() begin; listening = " + listening);
         super.onResume();
         //registerReceiver(smsListener, IntentFilter);
-        sensedEnvironment.registerListeners();
+        //sensedEnvironment.registerListeners();
         Log.v(TAG, "onResume() end");
     }
 
     @Override
     public void onPause() {
         Log.v(TAG, "onPause() begin");
-        sensedEnvironment.unregisterListeners();
+        //sensedEnvironment.unregisterListeners();
         super.onPause();
         Log.v(TAG, "onPause() end; listening = " + listening);
     }
@@ -124,6 +125,10 @@ public class MainActivity extends ActionBarActivity {
 
     public final void toggleListen(final View button) {
         Log.v(TAG, "toggleListen() begin; listening = " + listening);
+
+        wifi.displayWifiInfo();
+        Logger.log(TAG, "WIFI IP: " + wifi.getIP() + "; state: " + wifi.getState());
+
         if (listening) {
             phone.listen(phoneListener, PhoneStateListener.LISTEN_NONE);
             listening = false;
