@@ -30,7 +30,13 @@
 
         <receiver android:name=".Wifi">
             <intent-filter>
+                <action android:name="android.net.wifi.NETWORK_IDS_CHANGED" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.wifi.PICK_WIFI_NETWORK" />
+                <action android:name="android.net.wifi.RSSI_CHANGED" />
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
+                <action android:name="android.net.wifi.supplicant.STATE_CHANGE" />
             </intent-filter>
         </receiver>
 

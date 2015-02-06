@@ -17,9 +17,9 @@ class Parrot implements TextToSpeech.OnInitListener {
 
     public void close() {
         Logger.log(TAG, "close() begin");
-        say("Voice Deactivating.");
+        say("Voice Deactivating");
         while (tts.isSpeaking()) {
-            SystemClock.sleep(500);
+            SystemClock.sleep(250);
         }
         tts.stop();
         tts.shutdown();
@@ -32,7 +32,7 @@ class Parrot implements TextToSpeech.OnInitListener {
         Logger.log(TAG, "onInit() begin");
         if (TextToSpeech.SUCCESS == status) {
             try {
-                say("Hello! Voice activated.");
+                say("Voice activated");
             }
             catch (final Exception e) {
                 Log.e(TAG, "onInit(): " + e);

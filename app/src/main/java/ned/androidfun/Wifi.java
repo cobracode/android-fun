@@ -3,10 +3,6 @@ package ned.androidfun;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
@@ -15,13 +11,13 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
-import java.util.List;
 
 public class Wifi extends BroadcastReceiver {
     private static final String TAG = "Wifi";
     private WifiManager manager = null;
     private boolean isEnabled = false;
     private boolean isConnected = false;
+    private int state = WifiManager.WIFI_STATE_UNKNOWN;
 
     public Wifi () {}
 
@@ -38,14 +34,31 @@ public class Wifi extends BroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         Log.v(TAG, "onReceive() begin");
 
-        final int newState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_DISABLED);
-
-        String ip = "";
-
-        if (WifiManager.WIFI_STATE_ENABLED == newState) {
-            ip = getIP();
+        switch (intent.getAction()) {
+            case WifiManager.NETWORK_IDS_CHANGED_ACTION:
+                networkIDsChanged(intent);
+                break;
+            case WifiManager.NETWORK_STATE_CHANGED_ACTION:
+                networkStateChanged(intent);
+                break;
+            case WifiManager.ACTION_PICK_WIFI_NETWORK:
+                wifiNetworkPicked(intent);
+                break;
+            case WifiManager.RSSI_CHANGED_ACTION:
+                signalStrenthChanged(intent);
+                break;
+            case WifiManager.WIFI_STATE_CHANGED_ACTION:
+                wifiStateChanged(intent);
+                break;
+            case WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION:
+                supplicantConnectionStateChanged(intent);
+                break;
+            case WifiManager.SUPPLICANT_STATE_CHANGED_ACTION:
+                supplicantStateChanged(intent);
+                break;
+            default:
+                Log.w(TAG, "onReceive(): Unexpected intent received: " + intent.getAction());
         }
-        Parrot.say(getWifiState(newState) + " ip address is " + ip);
 
         Log.v(TAG, "onReceive() end");
     }
@@ -56,12 +69,7 @@ public class Wifi extends BroadcastReceiver {
     }
 
     public String getIP() {
-        if (isConnected) {
-            return ipIntToString(manager.getConnectionInfo().getIpAddress());
-        }
-        else {
-            return "N/A";
-        }
+        return ipIntToString(manager.getConnectionInfo().getIpAddress());
     }
 
     public String getState() {
@@ -83,6 +91,78 @@ public class Wifi extends BroadcastReceiver {
         }
 
         Logger.log(TAG, "displayWifiInfo(): DHCP: " + manager.getDhcpInfo().toString());
+    }
+
+
+    private void networkIDsChanged(final Intent intent) {
+        Log.v(TAG, "networkIDsChanged() begin");
+;
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "networkIDsChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+        Log.v(TAG, "networkIDsChanged() end");
+    }
+
+    private void networkStateChanged(final Intent intent) {
+        Log.v(TAG, "networkStateChanged() begin");
+
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "networkStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+        Log.v(TAG, "networkStateChanged() end");
+    }
+
+    private void wifiNetworkPicked(final Intent intent) {
+        Log.v(TAG, "wifiNetworkPicked() begin");
+
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "wifiNetworkPicked(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+        Log.v(TAG, "wifiNetworkPicked() end");
+    }
+
+    private void signalStrenthChanged(final Intent intent) {
+        Log.v(TAG, "signalStrenthChanged() begin");
+
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "signalStrenthChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+
+        Log.v(TAG, "signalStrenthChanged() end");
+    }
+
+    private void wifiStateChanged(final Intent intent) {
+        Log.v(TAG, "wifiStateChanged() begin");
+
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "wifiStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+        Log.v(TAG, "wifiStateChanged() end");
+    }
+
+    private void supplicantConnectionStateChanged(final Intent intent) {
+        Log.v(TAG, "supplicantConnectionStateChanged() begin");
+
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "supplicantConnectionStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+        Log.v(TAG, "supplicantConnectionStateChanged() end");
+    }
+
+    private void supplicantStateChanged(final Intent intent) {
+        Log.v(TAG, "supplicantStateChanged() begin");
+
+        for (final String key : intent.getExtras().keySet()) {
+            Logger.log(TAG, "supplicantStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        }
+
+        Log.v(TAG, "supplicantStateChanged() end");
     }
 
 
@@ -108,8 +188,8 @@ public class Wifi extends BroadcastReceiver {
         Log.v(TAG, "updateState() begin");
 
         if (null != manager) {
-            isEnabled = (manager.getWifiState() == WifiManager.WIFI_STATE_ENABLED) ? true : false;
-            isConnected = (manager.getConnectionInfo().getRssi() > -200) ? true : false;
+            isEnabled = (manager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
+            isConnected = (manager.getConnectionInfo().getRssi() > -200);
         }
         else {
             Log.w(TAG, "updateState(): manager is NULL");
@@ -142,45 +222,5 @@ public class Wifi extends BroadcastReceiver {
         }
 
         return stringState;
-    }
-
-    private void test(final Context context) {
-        String ssid = null;
-        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if (networkInfo.isConnected()) {
-            final WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !(connectionInfo.getSSID().equals(""))) {
-                //if (connectionInfo != null && !StringUtil.isBlank(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-            // Get WiFi status MARAKANA
-            WifiInfo info = wifiManager.getConnectionInfo();
-            String textStatus = "";
-            textStatus += "\n\nWiFi Status: " + info.toString();
-            String BSSID = info.getBSSID();
-            String MAC = info.getMacAddress();
-
-            List<ScanResult> results = wifiManager.getScanResults();
-            ScanResult bestSignal = null;
-            int count = 1;
-            String etWifiList = "";
-            for (ScanResult result : results) {
-                etWifiList += count++ + ". " + result.SSID + " : " + result.level + "\n" +
-                        result.BSSID + "\n" + result.capabilities +"\n" +
-                        "\n=======================\n";
-            }
-            Logger.log(TAG, "from SO: \n"+etWifiList);
-
-            // List stored networks
-            List<WifiConfiguration> configs = wifiManager.getConfiguredNetworks();
-            for (WifiConfiguration config : configs) {
-                textStatus+= "\n\n" + config.toString();
-            }
-            Logger.log(TAG,"from marakana: \n"+textStatus);
-        }
-
-        Logger.log(TAG, "test(): " + ssid);
     }
 }

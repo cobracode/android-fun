@@ -20,7 +20,7 @@ public class SmsListener extends BroadcastReceiver {
         final SmsMessage messages[] = getMessagesFromIntent(intent);
         final String from = Contacts.getContactName(context, messages[0].getOriginatingAddress());
 
-        String fullText = from + " says";
+        String fullText = from + " says:";
 
         for (final SmsMessage message : messages) {
             fullText += " " + message.getMessageBody();
