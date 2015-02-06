@@ -3,6 +3,9 @@ package ned.androidfun;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
@@ -45,7 +48,7 @@ public class Wifi extends BroadcastReceiver {
                 wifiNetworkPicked(intent);
                 break;
             case WifiManager.RSSI_CHANGED_ACTION:
-                signalStrenthChanged(intent);
+                signalStrengthChanged(intent);
                 break;
             case WifiManager.WIFI_STATE_CHANGED_ACTION:
                 wifiStateChanged(intent);
@@ -96,19 +99,22 @@ public class Wifi extends BroadcastReceiver {
 
     private void networkIDsChanged(final Intent intent) {
         Log.v(TAG, "networkIDsChanged() begin");
-;
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "networkIDsChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
-        }
-
+        Util.printAllBundleExtras(intent.getExtras());
         Log.v(TAG, "networkIDsChanged() end");
     }
 
     private void networkStateChanged(final Intent intent) {
         Log.v(TAG, "networkStateChanged() begin");
+        Util.printAllBundleExtras(intent.getExtras());
 
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "networkStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        final NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+
+        switch (info.getState()) {
+            case CONNECTED:
+                Parrot.say("Connected to wifi network " + info.getExtraInfo());
+                break;
+            case DISCONNECTED:
+                //Parrot.say("Disconnected from network");
         }
 
         Log.v(TAG, "networkStateChanged() end");
@@ -116,50 +122,34 @@ public class Wifi extends BroadcastReceiver {
 
     private void wifiNetworkPicked(final Intent intent) {
         Log.v(TAG, "wifiNetworkPicked() begin");
-
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "wifiNetworkPicked(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
-        }
-
+        Util.printAllBundleExtras(intent.getExtras());
         Log.v(TAG, "wifiNetworkPicked() end");
     }
 
-    private void signalStrenthChanged(final Intent intent) {
-        Log.v(TAG, "signalStrenthChanged() begin");
-
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "signalStrenthChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
-        }
-
-
-        Log.v(TAG, "signalStrenthChanged() end");
+    private void signalStrengthChanged(final Intent intent) {
+        Log.v(TAG, "signalStrengthChanged() begin");
+        Util.printAllBundleExtras(intent.getExtras());
+        Log.v(TAG, "signalStrengthChanged() end");
     }
 
     private void wifiStateChanged(final Intent intent) {
         Log.v(TAG, "wifiStateChanged() begin");
-
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "wifiStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
-        }
-
+        Util.printAllBundleExtras(intent.getExtras());
         Log.v(TAG, "wifiStateChanged() end");
     }
 
     private void supplicantConnectionStateChanged(final Intent intent) {
         Log.v(TAG, "supplicantConnectionStateChanged() begin");
-
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "supplicantConnectionStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
-        }
-
+        Util.printAllBundleExtras(intent.getExtras());
         Log.v(TAG, "supplicantConnectionStateChanged() end");
     }
 
     private void supplicantStateChanged(final Intent intent) {
         Log.v(TAG, "supplicantStateChanged() begin");
+        Util.printAllBundleExtras(intent.getExtras());
 
-        for (final String key : intent.getExtras().keySet()) {
-            Logger.log(TAG, "supplicantStateChanged(): \"" + key + "\" = \"" + intent.getExtras().get(key).toString() + "\"");
+        if (SupplicantState.DISCONNECTED == intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE)) {
+            Parrot.say("Disconnected from wifi network.");
         }
 
         Log.v(TAG, "supplicantStateChanged() end");
