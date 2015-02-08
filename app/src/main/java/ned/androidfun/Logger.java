@@ -19,6 +19,12 @@ class Logger {
         }
     }
 
+    public static void printSay(final String msg) {
+        // Print to TextView and say out loud
+        Logger.log("", msg);
+        Parrot.say(msg);
+    }
+
     public static void resetCount() {
         count = 0;
     }

@@ -126,7 +126,7 @@ public class MainActivity extends ActionBarActivity {
     public final void toggleListen(final View button) {
         Log.v(TAG, "toggleListen() begin; listening = " + listening);
 
-        wifi.displayWifiInfo();
+        //wifi.displayWifiInfo();
         Logger.log(TAG, "WIFI IP: " + wifi.getIP() + "; state: " + wifi.getState());
 
         if (listening) {

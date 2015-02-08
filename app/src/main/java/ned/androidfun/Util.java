@@ -9,7 +9,7 @@ class Util {
 
     public static void printAllBundleExtras(final Bundle bundle) {
         for (final String key : bundle.keySet()) {
-            Log.v(TAG, "printAllBundleExtras(): \"" + key + "\" = \"" + bundle.get(key).toString() + "\"");
+            Logger.log(TAG, "printAllBundleExtras(): \"" + key + "\" = \"" + bundle.get(key).toString() + "\"");
         }
     }
 }

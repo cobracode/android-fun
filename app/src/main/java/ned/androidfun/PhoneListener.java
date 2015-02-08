@@ -17,6 +17,7 @@ class PhoneListener extends PhoneStateListener {
     private static final String TAG = "PhoneListener";
     private TextView text = null;
     private Context context = null;
+    private static String from = "unknown contact";
 
     static final int listenSettings =
             PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
@@ -36,8 +37,8 @@ class PhoneListener extends PhoneStateListener {
     public void onCallStateChanged(final int state, final String incomingNumber) {
         String callState = "";
 
-        //final String number = incomingNumber.isEmpty() ? "N/A" : incomingNumber;
-        final String from = Contacts.getContactName(context, incomingNumber);
+        from = incomingNumber.isEmpty()? from : Contacts.getContactName(context, incomingNumber);
+        Logger.log(TAG, "onCallStateChanged(): incoming #: " + from);
 
         switch (state) {
             case TelephonyManager.CALL_STATE_IDLE:

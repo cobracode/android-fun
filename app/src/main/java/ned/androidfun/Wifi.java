@@ -3,12 +3,17 @@ package ned.androidfun;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -18,18 +23,19 @@ import java.nio.ByteOrder;
 public class Wifi extends BroadcastReceiver {
     private static final String TAG = "Wifi";
     private WifiManager manager = null;
+    private Context context = null;
+
     private boolean isEnabled = false;
     private boolean isConnected = false;
     private int state = WifiManager.WIFI_STATE_UNKNOWN;
+    private static String connectedWifiNetwork = "unknown wifi network";
+    private static final String STRING_NETWORK_DISCONNECTED = "no-wifi-connection";
 
     public Wifi () {}
 
     Wifi(final Context context) {
         Log.v(TAG, "Wifi() begin");
-        manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-
-        updateState();
-
+        updateState(context);
         Log.v(TAG, "Wifi() end");
     }
 
@@ -37,27 +43,29 @@ public class Wifi extends BroadcastReceiver {
     public void onReceive(final Context context, final Intent intent) {
         Log.v(TAG, "onReceive() begin");
 
+        updateState(context);
+
         switch (intent.getAction()) {
+            case WifiManager.ACTION_PICK_WIFI_NETWORK:
+                wifiNetworkPicked(intent);
+                break;
             case WifiManager.NETWORK_IDS_CHANGED_ACTION:
                 networkIDsChanged(intent);
                 break;
             case WifiManager.NETWORK_STATE_CHANGED_ACTION:
                 networkStateChanged(intent);
                 break;
-            case WifiManager.ACTION_PICK_WIFI_NETWORK:
-                wifiNetworkPicked(intent);
-                break;
             case WifiManager.RSSI_CHANGED_ACTION:
                 signalStrengthChanged(intent);
-                break;
-            case WifiManager.WIFI_STATE_CHANGED_ACTION:
-                wifiStateChanged(intent);
                 break;
             case WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION:
                 supplicantConnectionStateChanged(intent);
                 break;
             case WifiManager.SUPPLICANT_STATE_CHANGED_ACTION:
                 supplicantStateChanged(intent);
+                break;
+            case WifiManager.WIFI_STATE_CHANGED_ACTION:
+                wifiStateChanged(intent);
                 break;
             default:
                 Log.w(TAG, "onReceive(): Unexpected intent received: " + intent.getAction());
@@ -111,13 +119,48 @@ public class Wifi extends BroadcastReceiver {
 
         switch (info.getState()) {
             case CONNECTED:
-                Parrot.say("Connected to wifi network " + info.getExtraInfo());
+                connectedWifiNetwork = info.getExtraInfo();
+                Logger.printSay("Connected to wifi network " + connectedWifiNetwork);
+                sendHello();
                 break;
             case DISCONNECTED:
-                //Parrot.say("Disconnected from network");
+                // Prevent saying this twice, as each disconnection generates 2 of these intents
+                if (!connectedWifiNetwork.equals(STRING_NETWORK_DISCONNECTED)) {
+                    Logger.printSay("Disconnected from wifi network " + connectedWifiNetwork);
+                    connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
+                }
+                break;
+        }
+
+        if (info.getDetailedState().equals(NetworkInfo.DetailedState.FAILED)) {
+            Logger.printSay("Authentication for wifi network failed for " + info.getExtraInfo());
         }
 
         Log.v(TAG, "networkStateChanged() end");
+    }
+
+    private void sendHello() {
+        RequestQueue requests = Volley.newRequestQueue(context);
+
+        StringRequest request = new StringRequest(
+                "http://www.google.com",
+
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(final String response) {
+                        Logger.printSay("Received response: " + response);
+                    }
+                },
+
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        Logger.printSay("Error in request: " + volleyError);
+                    }
+                });
+
+        requests.add(request);
     }
 
     private void wifiNetworkPicked(final Intent intent) {
@@ -135,6 +178,9 @@ public class Wifi extends BroadcastReceiver {
     private void wifiStateChanged(final Intent intent) {
         Log.v(TAG, "wifiStateChanged() begin");
         Util.printAllBundleExtras(intent.getExtras());
+
+        Parrot.say(getWifiState(intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)));
+
         Log.v(TAG, "wifiStateChanged() end");
     }
 
@@ -148,9 +194,10 @@ public class Wifi extends BroadcastReceiver {
         Log.v(TAG, "supplicantStateChanged() begin");
         Util.printAllBundleExtras(intent.getExtras());
 
-        if (SupplicantState.DISCONNECTED == intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE)) {
-            Parrot.say("Disconnected from wifi network.");
-        }
+//        if (SupplicantState.DISCONNECTED == intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE)) {
+//            Parrot.say("Disconnected from wifi network " + connectedWifiNetwork);
+//            connectedWifiNetwork = "";
+//        }
 
         Log.v(TAG, "supplicantStateChanged() end");
     }
@@ -174,15 +221,31 @@ public class Wifi extends BroadcastReceiver {
         return ipString;
     }
 
-    private void updateState() {
+    private void updateState(final Context context) {
         Log.v(TAG, "updateState() begin");
 
-        if (null != manager) {
-            isEnabled = (manager.getWifiState() == WifiManager.WIFI_STATE_ENABLED);
-            isConnected = (manager.getConnectionInfo().getRssi() > -200);
+        // Update manager and other info
+        manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        this.context = context;
+
+        isEnabled = manager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
+        Log.v(TAG, "updateState(): isEnabled = " + isEnabled);
+
+        if (isEnabled) {
+            isConnected = manager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED);
+            Log.v(TAG, "updateState(): isConnected = " + isConnected);
+
+            if (isConnected) {
+                connectedWifiNetwork = manager.getConnectionInfo().getSSID();
+                Log.v(TAG, "updateState(): connectedWifiNetwork = " + connectedWifiNetwork);
+            }
+            else {
+                connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
+            }
         }
         else {
-            Log.w(TAG, "updateState(): manager is NULL");
+            isConnected = false;
+            connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
         }
 
         Log.v(TAG, "updateState() end");
