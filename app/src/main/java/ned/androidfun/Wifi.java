@@ -143,19 +143,17 @@ public class Wifi extends BroadcastReceiver {
         RequestQueue requests = Volley.newRequestQueue(context);
 
         StringRequest request = new StringRequest(
-                "http://www.google.com",
-
+                "http://www.scienceofspirituality.info/files/hello",
                 new Response.Listener<String>() {
-
                     @Override
                     public void onResponse(final String response) {
-                        Logger.printSay("Received response: " + response);
+                        Logger.printSay("Received Volley response");
+                        Logger.log(TAG, "sendHello()::onResponse():: response = " + response);
                     }
                 },
-
                 new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError volleyError) {
+                    public void onErrorResponse(final VolleyError volleyError) {
                         Logger.printSay("Error in request: " + volleyError);
                     }
                 });
@@ -235,13 +233,15 @@ public class Wifi extends BroadcastReceiver {
             isConnected = manager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED);
             Log.v(TAG, "updateState(): isConnected = " + isConnected);
 
-            if (isConnected) {
-                connectedWifiNetwork = manager.getConnectionInfo().getSSID();
-                Log.v(TAG, "updateState(): connectedWifiNetwork = " + connectedWifiNetwork);
-            }
-            else {
-                connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
-            }
+            Log.v(TAG, "updateState(): SSID = " + manager.getConnectionInfo().getSSID());
+
+//            if (isConnected) {
+//                connectedWifiNetwork = manager.getConnectionInfo().getSSID();
+//                Log.v(TAG, "updateState(): connectedWifiNetwork = " + connectedWifiNetwork);
+//            }
+//            else {
+//                connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
+//            }
         }
         else {
             isConnected = false;
