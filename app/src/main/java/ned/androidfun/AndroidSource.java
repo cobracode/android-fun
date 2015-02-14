@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 class AndroidSource {
     private static final String TAG = "AndroidSource";
 
-    public boolean executeMethod(final String className, final String methodName, final Object object, final Class<?>... params) {
+    public static boolean executeMethod(final String className, final String methodName, final Object object, final Class<?>... params) {
         Log.v(TAG, "excuteMethod() begin");
         boolean result = false;
 
@@ -30,7 +30,7 @@ class AndroidSource {
         return result;
     }
 
-    public boolean doesMethodExist(final String className, final String methodName, final Class<?>... params) {
+    public static boolean doesMethodExist(final String className, final String methodName, final Class<?>... params) {
         Log.v(TAG, "doesMethodExist(): begin");
         boolean result = true;
 
@@ -46,7 +46,7 @@ class AndroidSource {
         return result;
     }
 
-    public boolean doesFieldExist(final String className, final String fieldName) {
+    public static boolean doesFieldExist(final String className, final String fieldName) {
         Log.v(TAG, "doesFieldExist(): begin");
         boolean result = true;
 
@@ -62,7 +62,7 @@ class AndroidSource {
         return result;
     }
 
-    public void printMethods(final String className) {
+    public static void printMethods(final String className) {
         Log.v(TAG, "printMethods() begin");
         try {
             for (final Method m : Class.forName(className).getDeclaredMethods()) {
@@ -75,7 +75,7 @@ class AndroidSource {
         Log.v(TAG, "printMethods() end");
     }
 
-    public void printFields(final String className) {
+    public static void printFields(final String className) {
         Log.v(TAG, "printFields() begin");
         try {
             for (final Field m : Class.forName(className).getDeclaredFields()) {

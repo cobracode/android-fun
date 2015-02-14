@@ -147,7 +147,11 @@ public class Wifi extends BroadcastReceiver {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(final String response) {
-                        Logger.printSay("Received Volley response");
+                        if (response.equals("hi there!\n\n")) {
+                            Logger.printSay("Correct response");
+                        } else {
+                            Logger.printSay("Invalid response");
+                        }
                         Logger.log(TAG, "sendHello()::onResponse():: response = " + response);
                     }
                 },

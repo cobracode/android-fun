@@ -13,40 +13,47 @@ class IConnectivityManager {
     private ConnectivityManager cm = null;
     private Object iConnectivityManager = null;
     private Method setRadios = null;
+    private Method setRadio = null;
 
     public IConnectivityManager(final Context context) {
-        Log.v(TAG, "IConnectivityManager() begin");
+        final String method = "IConnectivityManager(): ";
+        Log.v(TAG, method + "begin");
         cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         try {
             // Get ConnectivityManager.mService
             final Field serviceField = cm.getClass().getDeclaredField("mService");
             serviceField.setAccessible(true);
-            Log.v(TAG, "IConnectivityManager(): serviceField: " + serviceField);
+            Log.v(TAG, method + "serviceField: " + serviceField);
 
             // Get object of whichever class mService is
             iConnectivityManager = serviceField.get(cm);
-            Log.v(TAG, "IConnectivityManager(): iConnectivityManager: " + iConnectivityManager);
+            Log.v(TAG, method + "iConnectivityManager: " + iConnectivityManager);
+
+            //AndroidSource.printMethods(iConnectivityManager.getClass().getName());
 
             // Set method
             setRadios = iConnectivityManager.getClass().getDeclaredMethod("setRadios", Boolean.TYPE);
             setRadios.setAccessible(true);
-            Log.v(TAG, "IConnectivityManager(): setRadios: " + setRadios + "; is accessible? " + setRadios.isAccessible());
-        }
-        catch (final Exception e) {
-            Log.e(TAG, "IConnectivityManager(): Error setting up cell radio controller: " + e);
+            Log.v(TAG, method + "setRadios: " + setRadios + "; is accessible? " + setRadios.isAccessible());
+
+            setRadio = iConnectivityManager.getClass().getDeclaredMethod("setRadio", Integer.TYPE, Boolean.TYPE);
+            setRadio.setAccessible(true);
+            Log.v(TAG, method + "setRadio: " + setRadio + "; is accessible? " + setRadio.isAccessible());
+        } catch (final Exception e) {
+            Log.e(TAG, method + "Error setting up cell radio controller: " + e);
             e.printStackTrace();
             iConnectivityManager = null;
             setRadios = null;
         }
-        Log.v(TAG, "IConnectivityManager() end");
+        Log.v(TAG, method + "end");
     }
 
     public void disableCell() {
         Log.v(TAG, "disableCell() begin");
         try {
-            setRadios.invoke(iConnectivityManager, false);
-            Logger.log(TAG, "disableCell(): radios disabled");
+            setRadio.invoke(iConnectivityManager, ConnectivityManager.TYPE_MOBILE, false);
+            Logger.log(TAG, "disableCell(): cell disabled");
         }
         catch (final Exception e) {
             Log.e(TAG, "disableCell(): " + e);
@@ -55,17 +62,43 @@ class IConnectivityManager {
         Log.v(TAG, "disableCell() end");
     }
 
-    public void turnOnRadios() {
-        Log.v(TAG, "turnOnRadios() begin");
+    public void enableCell() {
+        Log.v(TAG, "enableCell() begin");
         try {
-            setRadios.invoke(iConnectivityManager, true);
-            Logger.log(TAG, "turnOnRadios(): radios turned on");
+            setRadio.invoke(iConnectivityManager, ConnectivityManager.TYPE_MOBILE, true);
+            Logger.log(TAG, "enableCell(): cell enabled");
         }
         catch (final Exception e) {
-            Log.e(TAG, "turnOnRadios(): " + e);
+            Log.e(TAG, "enableCell(): " + e);
             e.printStackTrace();
         }
-        Log.v(TAG, "turnOnRadios() end");
+        Log.v(TAG, "enableCell() end");
+    }
+
+    public void disableRadios() {
+        Log.v(TAG, "disableRadios() begin");
+        try {
+            setRadios.invoke(iConnectivityManager, false);
+            Logger.log(TAG, "disableRadios(): radios disabled");
+        }
+        catch (final Exception e) {
+            Log.e(TAG, "disableRadios(): " + e);
+            e.printStackTrace();
+        }
+        Log.v(TAG, "disableRadios() end");
+    }
+
+    public void enableRadios() {
+        Log.v(TAG, "enableRadios() begin");
+        try {
+            setRadios.invoke(iConnectivityManager, true);
+            Logger.log(TAG, "enableRadios(): radios turned on");
+        }
+        catch (final Exception e) {
+            Log.e(TAG, "enableRadios(): " + e);
+            e.printStackTrace();
+        }
+        Log.v(TAG, "enableRadios() end");
     }
 
     public void printNetworkInfo() {

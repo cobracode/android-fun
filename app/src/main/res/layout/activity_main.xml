@@ -22,9 +22,9 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:text="Turn Radios On"
+        android:text="Enable Cell"
         android:id="@+id/button_radios_on"
-        android:onClick="turnOnRadios"
+        android:onClick="enableCell"
         android:textSize="10sp"
         android:height="10dp"
         android:layout_alignParentTop="true"
@@ -33,7 +33,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="30dp"
-        android:text="Turn Off Cell"
+        android:text="Disable Cell"
         android:id="@+id/button_cell_off"
         android:onClick="disableCell"
         android:textSize="10sp"

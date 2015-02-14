@@ -31,7 +31,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate() begin; listening = " + listening);
+        Log.v(TAG, "onCreate() begin");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -50,19 +50,19 @@ public class MainActivity extends ActionBarActivity {
         //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
 
-        Log.v(TAG, "onCreate() end; listening = " + listening);
+        Log.v(TAG, "onCreate() end");
     }
 
     @Override
     public void onStart() {
-        Log.v(TAG, "onStart() begin; listening = " + listening);
+        Log.v(TAG, "onStart() begin");
         super.onStart();
         Log.v(TAG, "onStart() end");
     }
 
     @Override
     public void onResume() {
-        Log.v(TAG, "onResume() begin; listening = " + listening);
+        Log.v(TAG, "onResume() begin");
         super.onResume();
         //registerReceiver(smsListener, IntentFilter);
         //sensedEnvironment.registerListeners();
@@ -74,26 +74,26 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "onPause() begin");
         //sensedEnvironment.unregisterListeners();
         super.onPause();
-        Log.v(TAG, "onPause() end; listening = " + listening);
+        Log.v(TAG, "onPause() end");
     }
 
     @Override
     public void onStop() {
-        Log.v(TAG, "onStop() begin; listening = " + listening);
+        Log.v(TAG, "onStop() begin");
         super.onStop();
         Log.v(TAG, "onStop() end");
     }
 
     @Override
     public void onRestart() {
-        Log.v(TAG, "onRestart() begin; listening = " + listening);
+        Log.v(TAG, "onRestart() begin");
         super.onRestart();
         Log.v(TAG, "onRestart() end");
     }
 
     @Override
     public void onDestroy() {
-        Log.v(TAG, "onDestroy() begin; listening = " + listening);
+        Log.v(TAG, "onDestroy() begin");
         parrot.close();
         super.onDestroy();
         Log.v(TAG, "onDestroy() end");
@@ -148,9 +148,21 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "disableCell() end");
     }
 
-    public final void turnOnRadios(final View view) {
-        Log.v(TAG, "turnOnRadios begin");
-        connectivityManager.turnOnRadios();
-        Log.v(TAG, "turnOnRadios end");
+    public final void enableCell(final View view) {
+        Log.v(TAG, "enableCell begin");
+        connectivityManager.enableCell();
+        Log.v(TAG, "enableCell end");
+    }
+
+    public final void disableRadios(final View view) {
+        Log.v(TAG, "disableRadios() begin");
+        connectivityManager.disableRadios();
+        Log.v(TAG, "disableRadios() end");
+    }
+
+    public final void enableRadios(final View view) {
+        Log.v(TAG, "enableRadios begin");
+        connectivityManager.enableRadios();
+        Log.v(TAG, "enableRadios end");
     }
 }
