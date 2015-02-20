@@ -14,6 +14,7 @@ class IConnectivityManager {
     private Object iConnectivityManager = null;
     private Method setRadios = null;
     private Method setRadio = null;
+    private boolean cellRadioOn = false;
 
     public IConnectivityManager(final Context context) {
         final String method = "IConnectivityManager(): ";
@@ -49,11 +50,20 @@ class IConnectivityManager {
         Log.v(TAG, method + "end");
     }
 
+    public boolean isCellRadioOn() {
+        final NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        cellRadioOn = (null != mobile && mobile.isAvailable());
+        Log.v(TAG, "isCellRadioOn(): " + cellRadioOn);
+
+        return cellRadioOn;
+    }
+
     public void disableCell() {
         Log.v(TAG, "disableCell() begin");
         try {
             setRadio.invoke(iConnectivityManager, ConnectivityManager.TYPE_MOBILE, false);
-            Logger.log(TAG, "disableCell(): cell disabled");
+            cellRadioOn = false;
+            Logger.printSay("Cell disabled");
         }
         catch (final Exception e) {
             Log.e(TAG, "disableCell(): " + e);
@@ -66,7 +76,8 @@ class IConnectivityManager {
         Log.v(TAG, "enableCell() begin");
         try {
             setRadio.invoke(iConnectivityManager, ConnectivityManager.TYPE_MOBILE, true);
-            Logger.log(TAG, "enableCell(): cell enabled");
+            cellRadioOn = true;
+            Logger.printSay("Cell enabled");
         }
         catch (final Exception e) {
             Log.e(TAG, "enableCell(): " + e);
@@ -79,6 +90,7 @@ class IConnectivityManager {
         Log.v(TAG, "disableRadios() begin");
         try {
             setRadios.invoke(iConnectivityManager, false);
+            cellRadioOn = false;
             Logger.log(TAG, "disableRadios(): radios disabled");
         }
         catch (final Exception e) {
@@ -92,6 +104,7 @@ class IConnectivityManager {
         Log.v(TAG, "enableRadios() begin");
         try {
             setRadios.invoke(iConnectivityManager, true);
+            cellRadioOn = true;
             Logger.log(TAG, "enableRadios(): radios turned on");
         }
         catch (final Exception e) {
@@ -107,17 +120,5 @@ class IConnectivityManager {
             Log.v(TAG, "printNetworkInfo(): network info: " + info.toString());
         }
         Log.v(TAG, "printNetworkInfo() end");
-    }
-
-    public void disableNetworks() {
-        Log.v(TAG, "disableNetworks() begin");
-        try {
-            setRadios.invoke(iConnectivityManager, false);
-        }
-        catch (final Exception e) {
-            Log.e(TAG, "disableNetworks(): Error setting airplane mode: " + e);
-            e.printStackTrace();
-        }
-        Logger.log(TAG, "disableNetworks() end");
     }
 }

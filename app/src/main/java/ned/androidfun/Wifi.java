@@ -15,11 +15,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteOrder;
-
 public class Wifi extends BroadcastReceiver {
     private static final String TAG = "Wifi";
     private WifiManager manager = null;
@@ -74,13 +69,30 @@ public class Wifi extends BroadcastReceiver {
         Log.v(TAG, "onReceive() end");
     }
 
+    public boolean isEnabled() {
+        Log.v(TAG, "isEnabled(): " + isEnabled);
+        return isEnabled;
+    }
+
+    public void enable() {
+        Log.v(TAG, "enable(): Enabling wifi");
+        manager.setWifiEnabled(true);
+        isEnabled = true;
+    }
+
+    public void disable() {
+        Log.v(TAG, "disable(): Disabling wifi");
+        manager.setWifiEnabled(false);
+        isEnabled = false;
+    }
+
     public boolean disconnect() {
         Log.v(TAG, "disconnect() -");
         return manager.disconnect();
     }
 
     public String getIP() {
-        return ipIntToString(manager.getConnectionInfo().getIpAddress());
+        return Util.ipIntToString(manager.getConnectionInfo().getIpAddress());
     }
 
     public String getState() {
@@ -202,25 +214,6 @@ public class Wifi extends BroadcastReceiver {
 //        }
 
         Log.v(TAG, "supplicantStateChanged() end");
-    }
-
-
-    private static String ipIntToString(final int ip) {
-        String ipString = "";
-        int mutableIP = ip;
-
-        if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
-            mutableIP = Integer.reverseBytes(ip);
-        }
-
-        try {
-            ipString = InetAddress.getByAddress(BigInteger.valueOf(mutableIP).toByteArray()).getHostAddress();
-        }
-        catch (final UnknownHostException uhe) {
-            Log.w(TAG, "ipIntToString(): Unable to get host IP from IP int: " + uhe);
-        }
-
-        return ipString;
     }
 
     private void updateState(final Context context) {

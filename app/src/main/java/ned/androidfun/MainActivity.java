@@ -16,18 +16,22 @@ public class MainActivity extends ActionBarActivity {
     // GUI
     private TextView text = null;
     private Button buttonToggleListen = null;
+    private Button buttonToggleCellRadio = null;
+    private Button buttonToggleWifiRadio = null;
+
+    // Managers
+    private IConnectivityManager connectivityManager = null;
+    private PhoneListener phoneListener = null;
+    private SensedEnvironment sensedEnvironment = null;
+    private SmsListener smsListener = new SmsListener();;
+    private SmsManager sms = SmsManager.getDefault();
+    private TelephonyManager phone = null;
+    private Parrot parrot = null;
+    private Wifi wifi = null;
 
     // Data
     private static final String TAG = "Connections";
     private boolean listening = true;
-    private TelephonyManager phone = null;
-    private PhoneListener phoneListener = null;
-    private IConnectivityManager connectivityManager = null;
-    private SmsManager sms = SmsManager.getDefault();
-    private SmsListener smsListener = null;
-    private Parrot parrot = null;
-    private SensedEnvironment sensedEnvironment = null;
-    private Wifi wifi = null;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -38,14 +42,13 @@ public class MainActivity extends ActionBarActivity {
         mapXMLIDs();
         Logger.setText(text);
 
-        wifi = new Wifi(this);
         parrot = new Parrot(this);
-        initCellListener();
+        wifi = new Wifi(this);
         connectivityManager = new IConnectivityManager(this);
-
-        smsListener = new SmsListener();
         sensedEnvironment = new SensedEnvironment(this, 50);
 
+        initializeRadioButtons();
+        initCellListener();
 
         //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
@@ -105,7 +108,16 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "mapXMLIDs() begin");
         text = (TextView)findViewById(R.id.edit_text);
         buttonToggleListen = (Button)findViewById(R.id.button_toggle_listen);
+        buttonToggleCellRadio = (Button)findViewById(R.id.button_toggle_cell_radio);
+        buttonToggleWifiRadio = (Button)findViewById(R.id.button_toggle_wifi_radio);
         Log.v(TAG, "mapXMLIDs() end");
+    }
+
+    private void initializeRadioButtons() {
+        // Get current status of radios and
+        // set button labels
+        buttonToggleCellRadio.setText(connectivityManager.isCellRadioOn() ? "Disable Cell" : "Enable Cell");
+        buttonToggleWifiRadio.setText(wifi.isEnabled() ? "Disable Wifi" : "Enable Wifi");
     }
 
     private void initCellListener() {
@@ -126,9 +138,6 @@ public class MainActivity extends ActionBarActivity {
     public final void toggleListen(final View button) {
         Log.v(TAG, "toggleListen() begin; listening = " + listening);
 
-        //wifi.displayWifiInfo();
-        Logger.log(TAG, "WIFI IP: " + wifi.getIP() + "; state: " + wifi.getState());
-
         if (listening) {
             phone.listen(phoneListener, PhoneStateListener.LISTEN_NONE);
             listening = false;
@@ -140,6 +149,34 @@ public class MainActivity extends ActionBarActivity {
             buttonToggleListen.setText("Stop Listening");
         }
         Log.v(TAG, "toggleListen() end; listening = " + listening);
+    }
+
+    public final void toggleCellRadio(final View button) {
+        Log.v(TAG, "toggleCellRadio() begin");
+
+        if (connectivityManager.isCellRadioOn()) {
+            connectivityManager.disableCell();
+            buttonToggleCellRadio.setText("Enable Cell");
+        } else {
+            connectivityManager.enableCell();
+            buttonToggleCellRadio.setText("Disable Cell");
+        }
+
+        Log.v(TAG, "toggleCellRadio() end");
+    }
+
+    public final void toggleWifiRadio(final View button) {
+        Log.v(TAG, "toggleWifiRadio() begin");
+
+        if (wifi.isEnabled()) {
+            wifi.disable();
+            buttonToggleWifiRadio.setText("Enable Wifi");
+        } else {
+            wifi.enable();
+            buttonToggleWifiRadio.setText("Disable Wifi");
+        }
+
+        Log.v(TAG, "toggleWifiRadio() end");
     }
 
     public final void disableCell(final View view) {
