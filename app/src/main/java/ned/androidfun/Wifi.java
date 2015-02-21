@@ -133,7 +133,7 @@ public class Wifi extends BroadcastReceiver {
             case CONNECTED:
                 connectedWifiNetwork = info.getExtraInfo();
                 Logger.printSay("Connected to wifi network " + connectedWifiNetwork);
-                sendHello();
+                Network.sendHello();
                 break;
             case DISCONNECTED:
                 // Prevent saying this twice, as each disconnection generates 2 of these intents
@@ -149,32 +149,6 @@ public class Wifi extends BroadcastReceiver {
         }
 
         Log.v(TAG, "networkStateChanged() end");
-    }
-
-    private void sendHello() {
-        RequestQueue requests = Volley.newRequestQueue(context);
-
-        StringRequest request = new StringRequest(
-                "http://www.scienceofspirituality.info/files/hello",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(final String response) {
-                        if (response.equals("hi there!\n\n")) {
-                            Logger.printSay("Correct response");
-                        } else {
-                            Logger.printSay("Invalid response");
-                        }
-                        Logger.log(TAG, "sendHello()::onResponse():: response = " + response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(final VolleyError volleyError) {
-                        Logger.printSay("Error in request: " + volleyError);
-                    }
-                });
-
-        requests.add(request);
     }
 
     private void wifiNetworkPicked(final Intent intent) {

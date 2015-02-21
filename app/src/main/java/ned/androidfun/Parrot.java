@@ -47,9 +47,17 @@ class Parrot implements TextToSpeech.OnInitListener {
     }
 
     public static void say(final String spokenText) {
-        if (null != tts) {
+        try {
             tts.speak(spokenText, TextToSpeech.QUEUE_ADD, null);
             Log.v(TAG, "say(): \"" + spokenText + "\"");
+        } catch (final NullPointerException e) {
+            final String error = "ERROR: Attempted to speak with uninitialized voice.";
+            Log.e(TAG, error);
+            Logger.log(TAG, error);
+        } catch (final Exception e) {
+            final String error = "Error while attempting to speak: " + e;
+            Log.w(TAG, error);
+            Logger.log(TAG, error);
         }
     }
 }

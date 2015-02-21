@@ -42,15 +42,16 @@ public class MainActivity extends ActionBarActivity {
         mapXMLIDs();
         Logger.setText(text);
 
-        parrot = new Parrot(this);
-        wifi = new Wifi(this);
-        connectivityManager = new IConnectivityManager(this);
-        sensedEnvironment = new SensedEnvironment(this, 50);
-
+        initializeWithContext();
         initializeRadioButtons();
         initCellListener();
 
-        //final String message = "the tree of life. it happens that many people in the western world are thinking about this on this day for reasons that have built up over millenia. but this tree of life is within us all no matter belief or geographic location or culture. our sacred biology that has components and layers that modern science has yet to come close to comprehending. expanding the feeling and idea to a larger role throughout the year and in a more universal tone";
+        //final String message = "the tree of life. it happens that many people in the western " +
+        // "world are thinking about this on this day for reasons that have built up over " +
+        // "millenia. but this tree of life is within us all no matter belief or geographic " +
+        // location or culture. our sacred biology that has components and layers that modern " +
+        // science has yet to come close to comprehending. expanding the feeling and idea to a " +
+        // larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
 
         Log.v(TAG, "onCreate() end");
@@ -83,6 +84,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onStop() {
         Log.v(TAG, "onStop() begin");
+        Network.cancelRequests();
         super.onStop();
         Log.v(TAG, "onStop() end");
     }
@@ -111,6 +113,14 @@ public class MainActivity extends ActionBarActivity {
         buttonToggleCellRadio = (Button)findViewById(R.id.button_toggle_cell_radio);
         buttonToggleWifiRadio = (Button)findViewById(R.id.button_toggle_wifi_radio);
         Log.v(TAG, "mapXMLIDs() end");
+    }
+
+    private void initializeWithContext() {
+        parrot = new Parrot(this);
+        Network.initialize(this);
+        wifi = new Wifi(this);
+        connectivityManager = new IConnectivityManager(this);
+        sensedEnvironment = new SensedEnvironment(this, 50);
     }
 
     private void initializeRadioButtons() {
