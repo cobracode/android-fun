@@ -10,6 +10,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class Network {
     private static final String TAG = "Network";
     private static Context context = null;
@@ -32,7 +35,7 @@ class Network {
         }
     }
 
-    public static void sendHello() {
+    public static void getHello() {
         final StringRequest request = new StringRequest(
                 "http://www.scienceofspirituality.info/files/hello",
                 new Response.Listener<String>() {
@@ -52,6 +55,65 @@ class Network {
                         Logger.printSay("Error in request: " + volleyError);
                     }
                 });
+
+        addRequest(request);
+    }
+
+    public static void sendLog(final String URL, final String tag, final String log) {
+        final String safeTag = tag.isEmpty() ? "generic" : tag;
+
+        final StringRequest request = new StringRequest(
+                Request.Method.POST,
+                URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(final String response) {
+                        Log.v(TAG, "sendLog(): Post response: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(final VolleyError volleyError) {
+                        Log.e(TAG, "sendLog()::onErrorResponse(): Error in post: " + volleyError);
+                    }
+                }) {
+
+            @Override
+            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(safeTag, log);
+                return params;
+            };
+        };
+
+        addRequest(request);
+    }
+
+    public static void sendPoem() {
+        final StringRequest request = new StringRequest(
+                Request.Method.POST,
+                "http://www.scienceofspirituality.info/files/receiver.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(final String response) {
+                        Log.v(TAG, "sendPoem(): Post response: " + response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(final VolleyError volleyError) {
+                        Logger.printSay("Error in post: " + volleyError);
+                    }
+                }) {
+
+            @Override
+            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("poem", "my love was fair like the wind was pale; my world flew");
+                params.put("fishster", "bearcat");
+                return params;
+            };
+        };
 
         addRequest(request);
     }

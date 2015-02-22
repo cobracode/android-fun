@@ -1,6 +1,7 @@
 package ned.androidfun;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.PhoneStateListener;
@@ -104,15 +105,19 @@ public class MainActivity extends ActionBarActivity {
         Log.v(TAG, "onDestroy() end");
     }
 
+    @Override
+    public void onConfigurationChanged(final Configuration newConfig) {
+        Log.v(TAG, "Configuration changed: " + newConfig.toString());
+        super.onConfigurationChanged(newConfig);
+    }
+
     //-------------------------------------------------------------
 
     private void mapXMLIDs() {
-        Log.v(TAG, "mapXMLIDs() begin");
         text = (TextView)findViewById(R.id.edit_text);
         buttonToggleListen = (Button)findViewById(R.id.button_toggle_listen);
         buttonToggleCellRadio = (Button)findViewById(R.id.button_toggle_cell_radio);
         buttonToggleWifiRadio = (Button)findViewById(R.id.button_toggle_wifi_radio);
-        Log.v(TAG, "mapXMLIDs() end");
     }
 
     private void initializeWithContext() {

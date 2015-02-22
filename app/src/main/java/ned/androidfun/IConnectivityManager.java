@@ -18,7 +18,6 @@ class IConnectivityManager {
 
     public IConnectivityManager(final Context context) {
         final String method = "IConnectivityManager(): ";
-        Log.v(TAG, method + "begin");
         cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         try {
@@ -47,7 +46,6 @@ class IConnectivityManager {
             iConnectivityManager = null;
             setRadios = null;
         }
-        Log.v(TAG, method + "end");
     }
 
     public boolean isCellRadioOn() {

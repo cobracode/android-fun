@@ -36,8 +36,6 @@ public class Wifi extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        Log.v(TAG, "onReceive() begin");
-
         updateState(context);
 
         switch (intent.getAction()) {
@@ -65,8 +63,6 @@ public class Wifi extends BroadcastReceiver {
             default:
                 Log.w(TAG, "onReceive(): Unexpected intent received: " + intent.getAction());
         }
-
-        Log.v(TAG, "onReceive() end");
     }
 
     public boolean isEnabled() {
@@ -133,7 +129,8 @@ public class Wifi extends BroadcastReceiver {
             case CONNECTED:
                 connectedWifiNetwork = info.getExtraInfo();
                 Logger.printSay("Connected to wifi network " + connectedWifiNetwork);
-                Network.sendHello();
+                Network.getHello();
+                Network.sendPoem();
                 break;
             case DISCONNECTED:
                 // Prevent saying this twice, as each disconnection generates 2 of these intents
@@ -158,9 +155,7 @@ public class Wifi extends BroadcastReceiver {
     }
 
     private void signalStrengthChanged(final Intent intent) {
-        Log.v(TAG, "signalStrengthChanged() begin");
         Util.printAllBundleExtras(intent.getExtras());
-        Log.v(TAG, "signalStrengthChanged() end");
     }
 
     private void wifiStateChanged(final Intent intent) {
@@ -191,8 +186,6 @@ public class Wifi extends BroadcastReceiver {
     }
 
     private void updateState(final Context context) {
-        Log.v(TAG, "updateState() begin");
-
         // Update manager and other info
         manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         this.context = context;
@@ -203,23 +196,12 @@ public class Wifi extends BroadcastReceiver {
         if (isEnabled) {
             isConnected = manager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED);
             Log.v(TAG, "updateState(): isConnected = " + isConnected);
-
             Log.v(TAG, "updateState(): SSID = " + manager.getConnectionInfo().getSSID());
-
-//            if (isConnected) {
-//                connectedWifiNetwork = manager.getConnectionInfo().getSSID();
-//                Log.v(TAG, "updateState(): connectedWifiNetwork = " + connectedWifiNetwork);
-//            }
-//            else {
-//                connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
-//            }
         }
         else {
             isConnected = false;
             connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
         }
-
-        Log.v(TAG, "updateState() end");
     }
 
     private String getWifiState(final int state) {
