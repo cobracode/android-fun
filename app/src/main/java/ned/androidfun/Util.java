@@ -14,7 +14,7 @@ class Util {
 
     public static void printAllBundleExtras(final Bundle bundle) {
         for (final String key : bundle.keySet()) {
-            Logger.log(TAG, "printAllBundleExtras(): \"" + key + "\" = \"" + bundle.get(key).toString() + "\"");
+            Log.v(TAG, "printAllBundleExtras(): \"" + key + "\" = \"" + bundle.get(key).toString() + "\"");
         }
     }
 

@@ -18,6 +18,9 @@ class Network {
     private static Context context = null;
     private static RequestQueue requests = null;
     private static int requestCount = 0;
+    private static final String SITE = "http://www.scienceofspirituality.info";
+    public static final String SITE_HELLO = SITE + "/files/hello";
+    private static final String SITE_RECEIVER = SITE + "/files/receiver.php";
 
     public static void initialize(final Context newContext) {
         context = newContext;
@@ -37,7 +40,7 @@ class Network {
 
     public static void getHello() {
         final StringRequest request = new StringRequest(
-                "http://www.scienceofspirituality.info/files/hello",
+                SITE_HELLO,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(final String response) {
@@ -89,30 +92,29 @@ class Network {
         addRequest(request);
     }
 
-    public static void sendPoem() {
+    public static void sendToSite(final String text) {
         final StringRequest request = new StringRequest(
                 Request.Method.POST,
-                "http://www.scienceofspirituality.info/files/receiver.php",
+                SITE_RECEIVER,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(final String response) {
-                        Log.v(TAG, "sendPoem(): Post response: " + response);
+                        Log.v(TAG, "sendToSite(): response: " + response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(final VolleyError volleyError) {
-                        Logger.printSay("Error in post: " + volleyError);
+                        Log.w(TAG, "sendToSite(): " + volleyError);
                     }
                 }) {
 
             @Override
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("poem", "my love was fair like the wind was pale; my world flew");
-                params.put("fishster", "bearcat");
+                params.put("sendToSite", text);
                 return params;
-            };
+            }
         };
 
         addRequest(request);

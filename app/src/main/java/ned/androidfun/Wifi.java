@@ -9,12 +9,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 public class Wifi extends BroadcastReceiver {
     private static final String TAG = "Wifi";
     private WifiManager manager = null;
@@ -130,7 +124,6 @@ public class Wifi extends BroadcastReceiver {
                 connectedWifiNetwork = info.getExtraInfo();
                 Logger.printSay("Connected to wifi network " + connectedWifiNetwork);
                 Network.getHello();
-                Network.sendPoem();
                 break;
             case DISCONNECTED:
                 // Prevent saying this twice, as each disconnection generates 2 of these intents

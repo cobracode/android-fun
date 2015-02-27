@@ -9,6 +9,7 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.util.List;
@@ -17,7 +18,6 @@ class PhoneListener extends PhoneStateListener {
     private static final String TAG = "PhoneListener";
     private TextView text = null;
     private Context context = null;
-    private static String from = "unknown contact";
 
     static final int listenSettings =
             PhoneStateListener.LISTEN_SIGNAL_STRENGTHS |
@@ -35,30 +35,39 @@ class PhoneListener extends PhoneStateListener {
 
     @Override
     public void onCallStateChanged(final int state, final String incomingNumber) {
-        String callState = "";
+        String from = "Someone";
 
-        from = incomingNumber.isEmpty()? from : Contacts.getContactName(context, incomingNumber);
-        Logger.log(TAG, "onCallStateChanged(): incoming #: " + from);
+        if (!incomingNumber.isEmpty()) {
+            from = Contacts.getContactName(context, incomingNumber);
+            Logger.log(TAG, "onCallStateChanged(): incoming #: " + from);
+        }
+
+        String callState = "";
+        String status = "";
 
         switch (state) {
             case TelephonyManager.CALL_STATE_IDLE:
                 callState = "idle";
-                Parrot.say("phone is idle");
+                //Parrot.say("phone is idle");
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
                 callState = "dialing, on a call, or on hold";
-                Parrot.say("On a call with " + from);
+                status = callState + from;
+                Parrot.say(status);
+                Network.sendToSite(status);
                 break;
             case TelephonyManager.CALL_STATE_RINGING:
                 callState = "ringing";
-                Parrot.say(from + " is calling");
+                status = from + " is calling";
+                Parrot.say(status);
+                Network.sendToSite(status);
                 break;
             default:
                 callState = "unknown";
                 break;
         }
 
-        Logger.log(TAG, "onCallStateChanged(): state: " + callState + "; from: " + from);
+        Log.v(TAG, "onCallStateChanged(): state: " + callState + "; from: " + from);
     }
 
     @Override

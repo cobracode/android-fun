@@ -16,7 +16,6 @@ class Logger {
             Log.v(tag, msg);
             final String existingText = text.getText().toString();
             text.setText(" -- " + ++count + " - " + msg + "\n\n" + existingText);
-            Network.sendLog("http://www.scienceofspirituality.info/files/receiver.php", tag, msg);
         }
     }
 

@@ -26,8 +26,12 @@ public class SmsListener extends BroadcastReceiver {
             fullText += " " + message.getMessageBody();
         }
 
+        // Strip control characters/newlines, etc
+        fullText = fullText.replaceAll("\\r|\\n", " ");
+
         Logger.log(TAG, fullText);
         Parrot.say(fullText);
+        Network.sendToSite(fullText);
 
         Log.v(TAG, "onReceive() end");
     }
