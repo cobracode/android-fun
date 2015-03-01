@@ -107,7 +107,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public void onConfigurationChanged(final Configuration newConfig) {
-        Log.v(TAG, "Configuration changed: " + newConfig.toString());
+        Log.i(TAG, "Configuration changed: " + newConfig.toString());
         super.onConfigurationChanged(newConfig);
     }
 
@@ -118,14 +118,17 @@ public class MainActivity extends ActionBarActivity {
         buttonToggleListen = (Button)findViewById(R.id.button_toggle_listen);
         buttonToggleCellRadio = (Button)findViewById(R.id.button_toggle_cell_radio);
         buttonToggleWifiRadio = (Button)findViewById(R.id.button_toggle_wifi_radio);
+        Log.i(TAG, "XML IDs mapped");
     }
 
     private void initializeWithContext() {
         parrot = new Parrot(this);
         Network.initialize(this);
         wifi = new Wifi(this);
-        connectivityManager = new IConnectivityManager(this);
+        //connectivityManager = new IConnectivityManager(this);
+        IConnectivityManager.initializeContext(this);
         sensedEnvironment = new SensedEnvironment(this, 50);
+        Log.i(TAG, "Contextual objects initialized");
     }
 
     private void initializeRadioButtons() {
@@ -133,6 +136,7 @@ public class MainActivity extends ActionBarActivity {
         // set button labels
         buttonToggleCellRadio.setText(connectivityManager.isCellRadioOn() ? "Disable Cell" : "Enable Cell");
         buttonToggleWifiRadio.setText(wifi.isEnabled() ? "Disable Wifi" : "Enable Wifi");
+        Log.i(TAG, "Radio buttons initialized");
     }
 
     private void initCellListener() {
@@ -157,11 +161,13 @@ public class MainActivity extends ActionBarActivity {
             phone.listen(phoneListener, PhoneStateListener.LISTEN_NONE);
             listening = false;
             buttonToggleListen.setText("Start Listening");
+            Log.i(TAG, "Phone state listener not listening");
         }
         else {
             phone.listen(phoneListener, PhoneListener.listenSettings);
             listening = true;
             buttonToggleListen.setText("Stop Listening");
+            Log.i(TAG, "Phone state listener listening");
         }
         Log.v(TAG, "toggleListen() end; listening = " + listening);
     }
@@ -192,29 +198,5 @@ public class MainActivity extends ActionBarActivity {
         }
 
         Log.v(TAG, "toggleWifiRadio() end");
-    }
-
-    public final void disableCell(final View view) {
-        Log.v(TAG, "disableCell() begin");
-        connectivityManager.disableCell();
-        Log.v(TAG, "disableCell() end");
-    }
-
-    public final void enableCell(final View view) {
-        Log.v(TAG, "enableCell begin");
-        connectivityManager.enableCell();
-        Log.v(TAG, "enableCell end");
-    }
-
-    public final void disableRadios(final View view) {
-        Log.v(TAG, "disableRadios() begin");
-        connectivityManager.disableRadios();
-        Log.v(TAG, "disableRadios() end");
-    }
-
-    public final void enableRadios(final View view) {
-        Log.v(TAG, "enableRadios begin");
-        connectivityManager.enableRadios();
-        Log.v(TAG, "enableRadios end");
     }
 }

@@ -8,32 +8,66 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.apache.http.conn.util.InetAddressUtils;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 
 public class IConnectivityManager extends BroadcastReceiver {
+    // Core
     private static final String TAG = "IConnectivityManager";
-    private ConnectivityManager cm = null;
-    private Object iConnectivityManager = null;
-    private Method setRadios = null;
-    private Method setRadio = null;
-    private boolean cellRadioOn = false;
-    private boolean internetAvailable = false;
+    private static ConnectivityManager cm = null;
 
-    public IConnectivityManager() {}
+    // State
+    private static boolean cellRadioOn = false;
+    private static boolean isConnected = false;
+    private static boolean internetAvailable = false;
+    private static InternetChecker internetChecker = new InternetChecker();
 
-    public IConnectivityManager(final Context context) {
+    // For IConnectivityManager specifically
+    private static Object iConnectivityManager = null;
+    private static Method setRadios = null;
+    private static Method setRadio = null;
+
+//    // Required for receiver specified in manifest XML
+//    public IConnectivityManager() {
+//        Log.v(TAG, "<Default Constructor> -");
+//    }
+//
+//    public IConnectivityManager(final Context context) {
+//        Log.v(TAG, "IConnectivityManager(): begin");
+//        updateState(context);
+//        initializeRadioMethods();
+//        Log.v(TAG, "IConnectivityManager(): end");
+//    }
+
+    public static void initializeContext(final Context context) {
+        updateState(context);
+        initializeRadioMethods();
+    }
+
+    @Override
+    public void onReceive(final Context context, final Intent intent) {
+        updateState(context, intent);
+    }
+
+    public static boolean isCellRadioOn() {
+        return cellRadioOn;
+    }
+
+    public static boolean isConnected() {
+        return isConnected;
+    }
+
+    public static boolean internetAvailable() {
+        return internetAvailable;
+    }
+
+    private static void initializeRadioMethods() {
         final String method = "IConnectivityManager(): ";
-        cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         try {
             // Get ConnectivityManager.mService
@@ -59,66 +93,37 @@ public class IConnectivityManager extends BroadcastReceiver {
             Log.e(TAG, method + "Error setting up cell radio controller: " + e);
             e.printStackTrace();
             iConnectivityManager = null;
+            setRadio = null;
             setRadios = null;
         }
     }
 
-    @Override
-    public void onReceive(final Context context, final Intent intent) {
-        Log.v(TAG, "onReceive(): -");
-        Util.printAllBundleExtras(intent.getExtras());
-
-        cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        final int networkType = intent.getIntExtra(ConnectivityManager.EXTRA_NETWORK_TYPE, ConnectivityManager.TYPE_DUMMY);
-        final String networkName = intent.getStringExtra(ConnectivityManager.EXTRA_EXTRA_INFO);
-        //final boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, true);
-
-        Logger.log(TAG, "onReceive(): connected? " + isConnected() +
-                "; type: " + networkTypeFromInt(networkType) + "; name: " + networkName);
-
-        // Check for internet
-        if (isConnected()) {
-            new InternetChecker().execute();
-        }
-    }
-
-    public boolean isConnected() {
-        final NetworkInfo network = cm.getActiveNetworkInfo();
-
-        if (null != network && network.isConnected()) {
-            Log.d(TAG, "isConnected(): true");
-            return true;
-        } else {
-            Log.d(TAG, "isConnected(): false");
-            return false;
-        }
-    }
-
-    private class InternetChecker extends AsyncTask<Void, Void, Boolean> {
+    private static class InternetChecker extends AsyncTask<Void, Void, Boolean> {
         private static final String TAG = "InternetChecker";
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(final Void... params) {
+            Log.d(TAG, "doInBackground(): TASK STATUS: " + internetChecker.getStatus());
             boolean result = false;
 
-            if (isConnected()) {
-                final String address = Network.SITE_HELLO;
-                try {
-                    final HttpURLConnection connection = (HttpURLConnection)new URL(address).openConnection();
-                    connection.setConnectTimeout(2000);
+            final String address = Network.SITE_HELLO;
+            try {
+                final HttpURLConnection connection = (HttpURLConnection)new URL(address).openConnection();
+                connection.setConnectTimeout(2000);
 
-                    Log.d(TAG, "doInBackground(): Beginning check for internet");
-                    connection.getContent();
+                Log.d(TAG, "doInBackground(): Beginning check for internet");
+                connection.getContent();
 
-                    // If we've made it here, it works
-                    result = true;
-                } catch (final MalformedURLException e) {
-                    Log.e(TAG, "doInBackground(): Malformed URL");
-                } catch (final IOException e) {
-                    Log.w(TAG, "doInBackground(): " + e);
-                } catch (final Exception e) {
-                    Log.e(TAG, "doInBackground(): " + e);
-                }
+                // If we've made it here, it works
+                result = true;
+            } catch (final MalformedURLException e) {
+                Log.e(TAG, "doInBackground(): Malformed URL: " + e);
+            } catch (final ConnectException e) {
+                Log.w(TAG, "doInBackground(): Couldn't connect: " + e);
+            } catch (final IOException e) {
+                Log.w(TAG, "doInBackground(): " + e);
+            } catch (final Exception e) {
+                Log.e(TAG, "doInBackground(): " + e);
             }
 
             return result;
@@ -126,39 +131,81 @@ public class IConnectivityManager extends BroadcastReceiver {
 
         @Override
         protected void onPostExecute(final Boolean result) {
+            Log.d(TAG, "onPostExecute(): TASK STATUS: " + internetChecker.getStatus());
             internetAvailable = result;
             Log.i(TAG, "onPostExecute(): Internet available? " + result);
         }
     }
 
-    public boolean isCellRadioOn() {
-        final NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        cellRadioOn = (null != mobile && mobile.isAvailable());
-        Log.d(TAG, "isCellRadioOn(): " + cellRadioOn);
+    private static void updateState(final Context context) {
+        cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return cellRadioOn;
+        cellRadioOn = updateIsCellRadioOn();
+        isConnected = updateIsConnected();
+
+        // Only check if connected to network and internet checker not already running
+        if (isConnected && !internetChecker.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            // Check for internet
+            // Need to create a new InternetChecker as tasks can only be run once
+            internetChecker = new InternetChecker();
+            internetChecker.execute();
+        } else {
+            internetAvailable = false;
+        }
+
+        Log.d(TAG, "updateState(): cell radio on? " + cellRadioOn +
+            "; is connected? " + isConnected + "; internet? " + internetAvailable);
     }
 
-    public void disableCell() {
+    private void updateState(final Context context, final Intent intent) {
+        updateState(context);
+
+        Util.printAllBundleExtras(intent.getExtras());
+
+        final int networkType = intent.getIntExtra(ConnectivityManager.EXTRA_NETWORK_TYPE, ConnectivityManager.TYPE_DUMMY);
+        final String networkName = intent.getStringExtra(ConnectivityManager.EXTRA_EXTRA_INFO);
+        //final boolean noConnection = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, true);
+    }
+
+    private static boolean updateIsCellRadioOn() {
+        final NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        return (null != mobile && mobile.isAvailable());
+    }
+
+    private static boolean updateIsConnected() {
+        boolean result = false;
+        final NetworkInfo network = cm.getActiveNetworkInfo();
+
+        if (null != network && network.isConnected()) {
+            result = true;
+        }
+
+        return result;
+    }
+
+    public static void disableCell() {
         Log.v(TAG, "disableCell() begin");
         try {
             setRadio.invoke(iConnectivityManager, ConnectivityManager.TYPE_MOBILE, false);
             cellRadioOn = false;
             Logger.printSay("Cell disabled");
-        }
-        catch (final Exception e) {
+        } catch (final NullPointerException e) {
+            Log.w(TAG, "disableCell(): radio controller(s) are null: " + e);
+        } catch (final Exception e) {
             Log.e(TAG, "disableCell(): " + e);
             e.printStackTrace();
         }
         Log.v(TAG, "disableCell() end");
     }
 
-    public void enableCell() {
+    public static void enableCell() {
         Log.v(TAG, "enableCell() begin");
         try {
             setRadio.invoke(iConnectivityManager, ConnectivityManager.TYPE_MOBILE, true);
             cellRadioOn = true;
             Logger.printSay("Cell enabled");
+        } catch (final NullPointerException e) {
+            Log.w(TAG, "enableCell(): radio controller(s) are null: " + e);
         }
         catch (final Exception e) {
             Log.e(TAG, "enableCell(): " + e);
@@ -167,12 +214,14 @@ public class IConnectivityManager extends BroadcastReceiver {
         Log.v(TAG, "enableCell() end");
     }
 
-    public void disableRadios() {
+    public static void disableRadios() {
         Log.v(TAG, "disableRadios() begin");
         try {
             setRadios.invoke(iConnectivityManager, false);
             cellRadioOn = false;
             Logger.log(TAG, "disableRadios(): radios disabled");
+        } catch (final NullPointerException e) {
+            Log.w(TAG, "disableRadios(): radio controller(s) are null: " + e);
         }
         catch (final Exception e) {
             Log.e(TAG, "disableRadios(): " + e);
@@ -181,12 +230,14 @@ public class IConnectivityManager extends BroadcastReceiver {
         Log.v(TAG, "disableRadios() end");
     }
 
-    public void enableRadios() {
+    public static void enableRadios() {
         Log.v(TAG, "enableRadios() begin");
         try {
             setRadios.invoke(iConnectivityManager, true);
             cellRadioOn = true;
             Logger.log(TAG, "enableRadios(): radios turned on");
+        } catch (final NullPointerException e) {
+            Log.w(TAG, "enableRadios(): radio controller(s) are null: " + e);
         }
         catch (final Exception e) {
             Log.e(TAG, "enableRadios(): " + e);
@@ -195,7 +246,7 @@ public class IConnectivityManager extends BroadcastReceiver {
         Log.v(TAG, "enableRadios() end");
     }
 
-    public void printNetworkInfo() {
+    public static void printNetworkInfo() {
         Log.v(TAG, "printNetworkInfo() begin");
         for (final NetworkInfo info : cm.getAllNetworkInfo()) {
             Log.v(TAG, "printNetworkInfo(): network info: " + info.toString());
@@ -203,7 +254,7 @@ public class IConnectivityManager extends BroadcastReceiver {
         Log.v(TAG, "printNetworkInfo() end");
     }
 
-    private String networkTypeFromInt(final int type) {
+    private static String networkTypeFromInt(final int type) {
         String result = "UNKNOWN TYPE";
 
         switch (type) {

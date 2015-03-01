@@ -20,7 +20,10 @@ public class Wifi extends BroadcastReceiver {
     private static String connectedWifiNetwork = "unknown wifi network";
     private static final String STRING_NETWORK_DISCONNECTED = "no-wifi-connection";
 
-    public Wifi () {}
+    // Required for receiver in manifest XML
+    public Wifi () {
+        Log.v(TAG, "<Default Constructor> -");
+    }
 
     Wifi(final Context context) {
         Log.v(TAG, "Wifi() begin");
@@ -149,14 +152,13 @@ public class Wifi extends BroadcastReceiver {
 
     private void signalStrengthChanged(final Intent intent) {
         Util.printAllBundleExtras(intent.getExtras());
+        Log.d(TAG, "signalStrengthChanged(): " + intent.getIntExtra(WifiManager.EXTRA_NEW_RSSI, -200));
     }
 
     private void wifiStateChanged(final Intent intent) {
         Log.v(TAG, "wifiStateChanged() begin");
         Util.printAllBundleExtras(intent.getExtras());
-
         Parrot.say(getWifiState(intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)));
-
         Log.v(TAG, "wifiStateChanged() end");
     }
 
@@ -169,32 +171,27 @@ public class Wifi extends BroadcastReceiver {
     private void supplicantStateChanged(final Intent intent) {
         Log.v(TAG, "supplicantStateChanged() begin");
         Util.printAllBundleExtras(intent.getExtras());
-
-//        if (SupplicantState.DISCONNECTED == intent.getParcelableExtra(WifiManager.EXTRA_NEW_STATE)) {
-//            Parrot.say("Disconnected from wifi network " + connectedWifiNetwork);
-//            connectedWifiNetwork = "";
-//        }
-
         Log.v(TAG, "supplicantStateChanged() end");
     }
 
     private void updateState(final Context context) {
+        Log.v(TAG, "updateState(): Updating wifi state");
+
         // Update manager and other info
         manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
         this.context = context;
 
         isEnabled = manager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
-        Log.v(TAG, "updateState(): isEnabled = " + isEnabled);
 
         if (isEnabled) {
             isConnected = manager.getConnectionInfo().getSupplicantState().equals(SupplicantState.COMPLETED);
-            Log.v(TAG, "updateState(): isConnected = " + isConnected);
-            Log.v(TAG, "updateState(): SSID = " + manager.getConnectionInfo().getSSID());
         }
         else {
             isConnected = false;
             connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
         }
+
+        Log.d(TAG, "updateState(): enabled? " + isEnabled + "; connected? " + isConnected + "; network: " + connectedWifiNetwork);
     }
 
     private String getWifiState(final int state) {
@@ -217,6 +214,7 @@ public class Wifi extends BroadcastReceiver {
                 stringState = "unknown wifi state";
                 break;
             default:
+                Log.w(TAG, "getWifiState(): Unknown state: " + state);
                 break;
         }
 

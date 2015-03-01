@@ -18,15 +18,19 @@ class Network {
     private static Context context = null;
     private static RequestQueue requests = null;
     private static int requestCount = 0;
+
     private static final String SITE = "http://www.scienceofspirituality.info";
     public static final String SITE_HELLO = SITE + "/files/hello";
     private static final String SITE_RECEIVER = SITE + "/files/receiver.php";
+    private static final String SITE_RESPONSE_SUCCESS = "Success";
 
     public static void initialize(final Context newContext) {
+        Log.v(TAG, "initialize() begin");
         context = newContext;
 
         try {
             requests = Volley.newRequestQueue(context);
+            Log.i(TAG, "Initialized Volley request queue with new context");
         } catch (final NullPointerException e) {
             final String error = "Error initializing Volley request queue: empty context";
             Log.e(TAG, error);
@@ -36,6 +40,8 @@ class Network {
             Log.e(TAG, error);
             Logger.log(TAG, error);
         }
+
+        Log.v(TAG, "initialize() end");
     }
 
     public static void getHello() {
@@ -48,8 +54,8 @@ class Network {
                             Logger.printSay("Correct response");
                         } else {
                             Logger.printSay("Invalid response");
+                            Logger.log(TAG, "onResponse(): " + response);
                         }
-                        Logger.log(TAG, "sendHello()::onResponse():: response = " + response);
                     }
                 },
                 new Response.ErrorListener() {
@@ -99,7 +105,10 @@ class Network {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(final String response) {
-                        Log.v(TAG, "sendToSite(): response: " + response);
+                        if (!response.equals(SITE_RESPONSE_SUCCESS)) {
+                            Logger.printSay("Site sent unexpected response");
+                            Logger.log(TAG, "onResponse(): " + response);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -121,25 +130,30 @@ class Network {
     }
 
     public static void cancelRequests() {
-        Log.v(TAG, "cancelRequests(): Cancelling all requests with tag \"" + TAG + "\"");
+        Log.i(TAG, "cancelRequests(): Cancelling all Volley requests with tag \"" + TAG + "\"");
         requests.cancelAll(TAG);
     }
 
     private static void addRequest(final Request request) {
-        Log.v(TAG, "Adding request " + requestCount);
-        request.setTag(TAG);
-        request.setSequence(requestCount++);
+        // Only add request if internet available
+        if (IConnectivityManager.internetAvailable()) {
+            Log.i(TAG, "Adding request " + requestCount);
+            request.setTag(TAG);
+            request.setSequence(requestCount++);
 
-        try {
-            requests.add(request);
-        } catch (final NullPointerException e) {
-            final String error = "ERROR: Attempted to add network request to uninitialized container";
-            Log.w(TAG, error);
-            Logger.printSay(error);
-        } catch (final Exception e) {
-            final String error = "Error while adding request to queue: " + e;
-            Log.w(TAG, error);
-            Logger.printSay(error);
+            try {
+                requests.add(request);
+            } catch (final NullPointerException e) {
+                final String error = "ERROR: Attempted to add network request to uninitialized container";
+                Log.w(TAG, error);
+                Logger.printSay(error);
+            } catch (final Exception e) {
+                final String error = "Error while adding request to queue: " + e;
+                Log.w(TAG, error);
+                Logger.printSay(error);
+            }
+        } else {
+            Log.w(TAG, "addRequest(): no internet; not adding request # " + requestCount);
         }
     }
 }

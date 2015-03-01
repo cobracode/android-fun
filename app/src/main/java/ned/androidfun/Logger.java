@@ -13,7 +13,7 @@ class Logger {
 
     public static void log(final String tag, final String msg) {
         if (null != text) {
-            Log.v(tag, msg);
+            Log.i(tag, msg);
             final String existingText = text.getText().toString();
             text.setText(" -- " + ++count + " - " + msg + "\n\n" + existingText);
         }
