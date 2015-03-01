@@ -11,22 +11,34 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
-class Network {
+class Network implements InternetListener {
+    // Core
     private static final String TAG = "Network";
     private static Context context = null;
-    private static RequestQueue requests = null;
-    private static int requestCount = 0;
 
+    // State
+    private static int requestCount = 1;
+    private static RequestQueue requests = null;
+    private static LinkedList<Request> storedRequests = new LinkedList<Request>();
+
+    // Constants
     private static final String SITE = "http://www.scienceofspirituality.info";
     public static final String SITE_HELLO = SITE + "/files/hello";
     private static final String SITE_RECEIVER = SITE + "/files/receiver.php";
     private static final String SITE_RESPONSE_SUCCESS = "Success";
 
+    public Network(final Context context) {
+        initialize(context);
+    }
+
     public static void initialize(final Context newContext) {
         Log.v(TAG, "initialize() begin");
         context = newContext;
+        requestCount = 1;
+        storedRequests.clear();
 
         try {
             requests = Volley.newRequestQueue(context);
@@ -135,25 +147,54 @@ class Network {
     }
 
     private static void addRequest(final Request request) {
-        // Only add request if internet available
-        if (IConnectivityManager.internetAvailable()) {
-            Log.i(TAG, "Adding request " + requestCount);
-            request.setTag(TAG);
-            request.setSequence(requestCount++);
+        // Assign request stats
+        request.setSequence(requestCount++);
+        request.setTag(TAG);
 
-            try {
-                requests.add(request);
-            } catch (final NullPointerException e) {
-                final String error = "ERROR: Attempted to add network request to uninitialized container";
-                Log.w(TAG, error);
-                Logger.printSay(error);
-            } catch (final Exception e) {
-                final String error = "Error while adding request to queue: " + e;
-                Log.w(TAG, error);
-                Logger.printSay(error);
-            }
+        // Only add request if internet available;
+        // if not, add to internal queue
+        if (IConnectivityManager.internetAvailable()) {
+            sendRequest(request);
         } else {
-            Log.w(TAG, "addRequest(): no internet; not adding request # " + requestCount);
+            Log.w(TAG, "addRequest(): no internet; storing request " + request.getSequence());
+            storedRequests.push(request);
         }
+    }
+
+    private static void sendRequest(final Request request) {
+        try {
+            requests.add(request);
+            Log.d(TAG, "sendRequest(): Sent request " + request.getSequence());
+        } catch (final NullPointerException e) {
+            final String error = "ERROR: Attempted to add network request to uninitialized container";
+            Log.w(TAG, error);
+            Logger.printSay(error);
+        } catch (final Exception e) {
+            final String error = "Error while adding request to queue: " + e;
+            Log.w(TAG, error);
+            Logger.printSay(error);
+        }
+    }
+
+    @Override
+    public void internetOn() {
+        Log.d(TAG, "internetOn(): flushing internal requests queue");
+
+        // Send all requests in queue
+        for (final Request request : storedRequests) {
+            sendRequest(request);
+        }
+
+//        final int numRequests = storedRequests.size();
+//
+//        for (int i = 0; i < numRequests; i++) {
+//            Log.d(TAG, "internetOn(): pushing stored request " + i + "/" + numRequests + " into Volley queue");
+//            addRequest(storedRequests.pop());
+//        }
+    }
+
+    @Override
+    public void internetOff() {
+        Log.d(TAG, "internetOff(): -");
     }
 }

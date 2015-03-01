@@ -10,13 +10,17 @@ import android.net.wifi.WifiManager;
 import android.util.Log;
 
 public class Wifi extends BroadcastReceiver {
+    // Core
     private static final String TAG = "Wifi";
     private WifiManager manager = null;
     private Context context = null;
 
+    // State
     private boolean isEnabled = false;
     private boolean isConnected = false;
     private int state = WifiManager.WIFI_STATE_UNKNOWN;
+
+    // Constants
     private static String connectedWifiNetwork = "unknown wifi network";
     private static final String STRING_NETWORK_DISCONNECTED = "no-wifi-connection";
 
@@ -26,9 +30,8 @@ public class Wifi extends BroadcastReceiver {
     }
 
     Wifi(final Context context) {
-        Log.v(TAG, "Wifi() begin");
+        Log.v(TAG, "Wifi() -");
         updateState(context);
-        Log.v(TAG, "Wifi() end");
     }
 
     @Override
@@ -63,24 +66,23 @@ public class Wifi extends BroadcastReceiver {
     }
 
     public boolean isEnabled() {
-        Log.v(TAG, "isEnabled(): " + isEnabled);
         return isEnabled;
     }
 
     public void enable() {
-        Log.v(TAG, "enable(): Enabling wifi");
+        Log.i(TAG, "Enabling wifi");
         manager.setWifiEnabled(true);
         isEnabled = true;
     }
 
     public void disable() {
-        Log.v(TAG, "disable(): Disabling wifi");
+        Log.i(TAG, "Disabling wifi");
         manager.setWifiEnabled(false);
         isEnabled = false;
     }
 
     public boolean disconnect() {
-        Log.v(TAG, "disconnect() -");
+        Log.d(TAG, "disconnect(): disconnecting");
         return manager.disconnect();
     }
 
@@ -125,8 +127,11 @@ public class Wifi extends BroadcastReceiver {
         switch (info.getState()) {
             case CONNECTED:
                 connectedWifiNetwork = info.getExtraInfo();
-                Logger.printSay("Connected to wifi network " + connectedWifiNetwork);
+                final String updateConnectedWifi = "Connected to wifi network " + connectedWifiNetwork;
                 Network.getHello();
+
+                Logger.printSay(updateConnectedWifi);
+                Network.sendToSite(updateConnectedWifi);
                 break;
             case DISCONNECTED:
                 // Prevent saying this twice, as each disconnection generates 2 of these intents

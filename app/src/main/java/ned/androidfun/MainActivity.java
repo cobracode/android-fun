@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements InternetListener {
     // GUI
     private TextView text = null;
     private Button buttonToggleListen = null;
@@ -22,6 +22,7 @@ public class MainActivity extends ActionBarActivity {
 
     // Managers
     private IConnectivityManager connectivityManager = null;
+    private Network network = null;
     private PhoneListener phoneListener = null;
     private SensedEnvironment sensedEnvironment = null;
     private SmsListener smsListener = new SmsListener();;
@@ -123,10 +124,11 @@ public class MainActivity extends ActionBarActivity {
 
     private void initializeWithContext() {
         parrot = new Parrot(this);
-        Network.initialize(this);
+        //Network.initialize(this);
+        network = new Network(this);
         wifi = new Wifi(this);
         //connectivityManager = new IConnectivityManager(this);
-        IConnectivityManager.initializeContext(this);
+        IConnectivityManager.initializeContext(this, this);
         sensedEnvironment = new SensedEnvironment(this, 50);
         Log.i(TAG, "Contextual objects initialized");
     }
@@ -198,5 +200,15 @@ public class MainActivity extends ActionBarActivity {
         }
 
         Log.v(TAG, "toggleWifiRadio() end");
+    }
+
+    @Override
+    public void internetOn() {
+        network.internetOn();
+    }
+
+    @Override
+    public void internetOff() {
+        network.internetOff();
     }
 }

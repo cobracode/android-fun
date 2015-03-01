@@ -20,6 +20,7 @@ public class IConnectivityManager extends BroadcastReceiver {
     // Core
     private static final String TAG = "IConnectivityManager";
     private static ConnectivityManager cm = null;
+    private static InternetListener appInternetListener = null;
 
     // State
     private static boolean cellRadioOn = false;
@@ -44,7 +45,8 @@ public class IConnectivityManager extends BroadcastReceiver {
 //        Log.v(TAG, "IConnectivityManager(): end");
 //    }
 
-    public static void initializeContext(final Context context) {
+    public static void initializeContext(final Context context, final InternetListener newAppInternetListener) {
+        appInternetListener = newAppInternetListener;
         updateState(context);
         initializeRadioMethods();
     }
@@ -103,15 +105,13 @@ public class IConnectivityManager extends BroadcastReceiver {
 
         @Override
         protected Boolean doInBackground(final Void... params) {
-            Log.d(TAG, "doInBackground(): TASK STATUS: " + internetChecker.getStatus());
             boolean result = false;
 
-            final String address = Network.SITE_HELLO;
             try {
-                final HttpURLConnection connection = (HttpURLConnection)new URL(address).openConnection();
+                final HttpURLConnection connection = (HttpURLConnection)new URL(Network.SITE_HELLO).openConnection();
                 connection.setConnectTimeout(2000);
 
-                Log.d(TAG, "doInBackground(): Beginning check for internet");
+                Log.d(TAG, "doInBackground(): Checking for internet");
                 connection.getContent();
 
                 // If we've made it here, it works
@@ -119,9 +119,9 @@ public class IConnectivityManager extends BroadcastReceiver {
             } catch (final MalformedURLException e) {
                 Log.e(TAG, "doInBackground(): Malformed URL: " + e);
             } catch (final ConnectException e) {
-                Log.w(TAG, "doInBackground(): Couldn't connect: " + e);
+                Log.d(TAG, "doInBackground(): Couldn't connect: " + e);
             } catch (final IOException e) {
-                Log.w(TAG, "doInBackground(): " + e);
+                Log.d(TAG, "doInBackground(): " + e);
             } catch (final Exception e) {
                 Log.e(TAG, "doInBackground(): " + e);
             }
@@ -131,10 +131,29 @@ public class IConnectivityManager extends BroadcastReceiver {
 
         @Override
         protected void onPostExecute(final Boolean result) {
-            Log.d(TAG, "onPostExecute(): TASK STATUS: " + internetChecker.getStatus());
-            internetAvailable = result;
-            Log.i(TAG, "onPostExecute(): Internet available? " + result);
+            if (result) {
+                internetOn();
+            } else {
+                internetOff();
+            }
         }
+    }
+
+    private static void internetOn() {
+        internetAvailable = true;
+        Log.i(TAG, "Internet Connected");
+
+        // Inform application
+        appInternetListener.internetOn();
+    }
+
+
+    private static void internetOff() {
+        internetAvailable = false;
+        Log.i(TAG, "Disconnected from internet");
+
+        // Inform application
+        appInternetListener.internetOff();
     }
 
     private static void updateState(final Context context) {
@@ -143,14 +162,16 @@ public class IConnectivityManager extends BroadcastReceiver {
         cellRadioOn = updateIsCellRadioOn();
         isConnected = updateIsConnected();
 
-        // Only check if connected to network and internet checker not already running
-        if (isConnected && !internetChecker.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            // Check for internet
-            // Need to create a new InternetChecker as tasks can only be run once
-            internetChecker = new InternetChecker();
-            internetChecker.execute();
+        if (isConnected) {
+            // Only check if internet checker not already running
+            if (!internetChecker.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                // Check for internet
+                // Need to create a new InternetChecker as tasks can only be run once
+                internetChecker = new InternetChecker();
+                internetChecker.execute();
+            }
         } else {
-            internetAvailable = false;
+            internetOff();
         }
 
         Log.d(TAG, "updateState(): cell radio on? " + cellRadioOn +
