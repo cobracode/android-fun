@@ -45,8 +45,11 @@ public class IConnectivityManager extends BroadcastReceiver {
 //        Log.v(TAG, "IConnectivityManager(): end");
 //    }
 
-    public static void initializeContext(final Context context, final InternetListener newAppInternetListener) {
-        appInternetListener = newAppInternetListener;
+    public static void initializeContext(final Context context) {
+        // Internet Listener can only be cast from Context here;
+        // the Context sent to onReceive is a restricted version. Will cause exception
+        appInternetListener = (InternetListener)context;
+
         updateState(context);
         initializeRadioMethods();
     }

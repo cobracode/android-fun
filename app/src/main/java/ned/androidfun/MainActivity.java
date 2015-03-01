@@ -128,7 +128,7 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
         network = new Network(this);
         wifi = new Wifi(this);
         //connectivityManager = new IConnectivityManager(this);
-        IConnectivityManager.initializeContext(this, this);
+        IConnectivityManager.initializeContext(this);
         sensedEnvironment = new SensedEnvironment(this, 50);
         Log.i(TAG, "Contextual objects initialized");
     }

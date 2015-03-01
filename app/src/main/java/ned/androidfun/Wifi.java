@@ -77,6 +77,7 @@ public class Wifi extends BroadcastReceiver {
 
     public void disable() {
         Log.i(TAG, "Disabling wifi");
+        //Network.sendToSite("Disconnected from wifi network " + connectedWifiNetwork);
         manager.setWifiEnabled(false);
         isEnabled = false;
     }
@@ -126,12 +127,16 @@ public class Wifi extends BroadcastReceiver {
 
         switch (info.getState()) {
             case CONNECTED:
-                connectedWifiNetwork = info.getExtraInfo();
-                final String updateConnectedWifi = "Connected to wifi network " + connectedWifiNetwork;
+                // Check for unexpected response; could be a captive portal (open network with
+                // verification) or something more malicious
                 Network.getHello();
 
-                Logger.printSay(updateConnectedWifi);
-                Network.sendToSite(updateConnectedWifi);
+                connectedWifiNetwork = info.getExtraInfo();
+                final String wifiStatus = "Connected to wifi network " + connectedWifiNetwork +
+                    "; IP " + getIP();
+
+                Logger.printSay(wifiStatus);
+                Network.sendToSite(wifiStatus);
                 break;
             case DISCONNECTED:
                 // Prevent saying this twice, as each disconnection generates 2 of these intents
@@ -194,6 +199,9 @@ public class Wifi extends BroadcastReceiver {
         else {
             isConnected = false;
             connectedWifiNetwork = STRING_NETWORK_DISCONNECTED;
+
+            // TODO Notify app of no internet
+
         }
 
         Log.d(TAG, "updateState(): enabled? " + isEnabled + "; connected? " + isConnected + "; network: " + connectedWifiNetwork);

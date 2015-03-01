@@ -12,13 +12,13 @@ import java.nio.ByteOrder;
 class Util {
     private static final String TAG = "Util";
 
-    public static void printAllBundleExtras(final Bundle bundle) {
+    public static final void printAllBundleExtras(final Bundle bundle) {
         for (final String key : bundle.keySet()) {
             Log.v(TAG, "printAllBundleExtras(): \"" + key + "\" = \"" + bundle.get(key).toString() + "\"");
         }
     }
 
-    public static String ipIntToString(final int ip) {
+    public static final String ipIntToString(final int ip) {
         String ipString = "";
         int mutableIP = ip;
 
@@ -34,5 +34,10 @@ class Util {
         }
 
         return ipString;
+    }
+
+    public static final String getTimestamp() {
+        final Long seconds = System.currentTimeMillis() / 1000;
+        return seconds.toString();
     }
 }

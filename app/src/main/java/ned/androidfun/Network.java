@@ -20,7 +20,7 @@ class Network implements InternetListener {
     private static Context context = null;
 
     // State
-    private static int requestCount = 1;
+    private static int requestCount = 0;
     private static RequestQueue requests = null;
     private static LinkedList<Request> storedRequests = new LinkedList<Request>();
 
@@ -37,7 +37,7 @@ class Network implements InternetListener {
     public static void initialize(final Context newContext) {
         Log.v(TAG, "initialize() begin");
         context = newContext;
-        requestCount = 1;
+        requestCount = 0;
         storedRequests.clear();
 
         try {
@@ -157,7 +157,7 @@ class Network implements InternetListener {
             sendRequest(request);
         } else {
             Log.w(TAG, "addRequest(): no internet; storing request " + request.getSequence());
-            storedRequests.push(request);
+            storedRequests.add(request);
         }
     }
 
@@ -181,16 +181,9 @@ class Network implements InternetListener {
         Log.d(TAG, "internetOn(): flushing internal requests queue");
 
         // Send all requests in queue
-        for (final Request request : storedRequests) {
-            sendRequest(request);
+        for (int i = 0; i < storedRequests.size(); i++) {
+            sendRequest(storedRequests.remove());
         }
-
-//        final int numRequests = storedRequests.size();
-//
-//        for (int i = 0; i < numRequests; i++) {
-//            Log.d(TAG, "internetOn(): pushing stored request " + i + "/" + numRequests + " into Volley queue");
-//            addRequest(storedRequests.pop());
-//        }
     }
 
     @Override
