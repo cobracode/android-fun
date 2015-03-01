@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -32,18 +33,6 @@ public class IConnectivityManager extends BroadcastReceiver {
     private static Object iConnectivityManager = null;
     private static Method setRadios = null;
     private static Method setRadio = null;
-
-//    // Required for receiver specified in manifest XML
-//    public IConnectivityManager() {
-//        Log.v(TAG, "<Default Constructor> -");
-//    }
-//
-//    public IConnectivityManager(final Context context) {
-//        Log.v(TAG, "IConnectivityManager(): begin");
-//        updateState(context);
-//        initializeRadioMethods();
-//        Log.v(TAG, "IConnectivityManager(): end");
-//    }
 
     public static void initializeContext(final Context context) {
         // Internet Listener can only be cast from Context here;
@@ -148,6 +137,9 @@ public class IConnectivityManager extends BroadcastReceiver {
 
         // Inform application
         appInternetListener.internetOn();
+
+        // Update site
+        Network.sendToSite(Wifi.getInternetStatus());
     }
 
 

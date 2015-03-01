@@ -204,6 +204,7 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
 
     @Override
     public void internetOn() {
+        // Inform rest of app
         network.internetOn();
     }
 

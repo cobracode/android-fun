@@ -13,11 +13,9 @@ class Logger {
 
     public static void log(final String tag, final String msg) {
         if (null != text) {
-            final String timedMsg = Util.getTimestamp() + " " + msg;
-
-            Log.i(tag, timedMsg);
+            Log.i(tag, msg);
             final String existingText = text.getText().toString();
-            text.setText(" -- " + ++count + " - " + timedMsg + "\n\n" + existingText);
+            text.setText(" -- " + ++count + " - " + msg + "\n\n" + existingText);
         }
     }
 

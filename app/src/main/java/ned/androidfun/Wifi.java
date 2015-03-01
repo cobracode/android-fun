@@ -3,6 +3,7 @@ package ned.androidfun;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
@@ -12,16 +13,16 @@ import android.util.Log;
 public class Wifi extends BroadcastReceiver {
     // Core
     private static final String TAG = "Wifi";
-    private WifiManager manager = null;
-    private Context context = null;
+    private static WifiManager manager = null;
+    private static Context context = null;
 
     // State
-    private boolean isEnabled = false;
-    private boolean isConnected = false;
-    private int state = WifiManager.WIFI_STATE_UNKNOWN;
+    private static boolean isEnabled = false;
+    private static boolean isConnected = false;
+    private static int state = WifiManager.WIFI_STATE_UNKNOWN;
+    private static String connectedWifiNetwork = "unknown wifi network";
 
     // Constants
-    private static String connectedWifiNetwork = "unknown wifi network";
     private static final String STRING_NETWORK_DISCONNECTED = "no-wifi-connection";
 
     // Required for receiver in manifest XML
@@ -87,8 +88,25 @@ public class Wifi extends BroadcastReceiver {
         return manager.disconnect();
     }
 
-    public String getIP() {
+    public static String getWifiNetworkInfo() {
+        final WifiInfo info = manager.getConnectionInfo();
+        return "BSSID " + info.getBSSID() + "; SSID " + info.getSSID() +
+                "; dbm " + info.getRssi() + "; speed " + info.getLinkSpeed();
+    }
+
+    public static String getIP() {
         return Util.ipIntToString(manager.getConnectionInfo().getIpAddress());
+    }
+
+    public static String getDNS() {
+        final DhcpInfo info = manager.getDhcpInfo();
+        return "GW: " + Util.ipIntToString(info.gateway) +
+               " DNS: " + Util.ipIntToString(info.dns1) +
+               "|" + Util.ipIntToString(info.dns2);
+    }
+
+    public static String getInternetStatus() {
+        return "Internet: " + getIP() + "; " + getDNS() + "; wifi: " + getWifiNetworkInfo();
     }
 
     public String getState() {
@@ -132,8 +150,7 @@ public class Wifi extends BroadcastReceiver {
                 Network.getHello();
 
                 connectedWifiNetwork = info.getExtraInfo();
-                final String wifiStatus = "Connected to wifi network " + connectedWifiNetwork +
-                    "; IP " + getIP();
+                final String wifiStatus = "Connected to wifi network " + connectedWifiNetwork;
 
                 Logger.printSay(wifiStatus);
                 Network.sendToSite(wifiStatus);
@@ -184,12 +201,12 @@ public class Wifi extends BroadcastReceiver {
         Log.v(TAG, "supplicantStateChanged() end");
     }
 
-    private void updateState(final Context context) {
+    private static void updateState(final Context newContext) {
         Log.v(TAG, "updateState(): Updating wifi state");
 
         // Update manager and other info
-        manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-        this.context = context;
+        manager = (WifiManager)newContext.getSystemService(Context.WIFI_SERVICE);
+        context = newContext;
 
         isEnabled = manager.getWifiState() == WifiManager.WIFI_STATE_ENABLED;
 
@@ -207,7 +224,7 @@ public class Wifi extends BroadcastReceiver {
         Log.d(TAG, "updateState(): enabled? " + isEnabled + "; connected? " + isConnected + "; network: " + connectedWifiNetwork);
     }
 
-    private String getWifiState(final int state) {
+    private static String getWifiState(final int state) {
         String stringState = "UNKNOWN STATE";
 
         switch (state) {

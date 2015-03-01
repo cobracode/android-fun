@@ -8,6 +8,8 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 class Util {
     private static final String TAG = "Util";
@@ -36,8 +38,14 @@ class Util {
         return ipString;
     }
 
-    public static final String getTimestamp() {
+    public static final String getTimeMillis() {
         final Long seconds = System.currentTimeMillis() / 1000;
         return seconds.toString();
+    }
+
+    public static final String getTimestamp() {
+        //Calendar c = Calendar.getInstance();
+        //SimpleDateFormat df = new SimpleDateFormat(); //called without pattern
+        return new SimpleDateFormat().format(Calendar.getInstance().getTime());
     }
 }

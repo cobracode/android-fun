@@ -133,7 +133,7 @@ class Network implements InternetListener {
             @Override
             protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("sendToSite", text);
+                params.put("sendToSite", Util.getTimestamp() + "|" + text);
                 return params;
             }
         };

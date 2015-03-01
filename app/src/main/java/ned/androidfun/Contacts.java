@@ -14,7 +14,7 @@ final class Contacts {
     private static HashMap<String, String> contactNames = new HashMap<String, String>();
 
     static String getContactName(final Context context, final String number) {
-        String name = "unknown contact";
+        String name = "someone";
 
         if (!number.isEmpty()) {
             // Check if contact is already stored
