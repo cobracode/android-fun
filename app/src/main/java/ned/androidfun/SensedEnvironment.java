@@ -6,13 +6,13 @@ import android.util.Log;
 
 class SensedEnvironment {
     private static final String TAG = "SensedEnvironment";
-    private SensorManager environmentSensorManager = null;
+    private static SensorManager environmentSensorManager = null;
 
     // Sensors
-    private AtmosphericPressureSensor pressureSensor = null;
-    private LightSensor lightSensor = null;
-    private ProximitySensor proximitySensor = null;
-    private TemperatureSensor temperatureSensor = null;
+    private static AtmosphericPressureSensor pressureSensor = null;
+    private static LightSensor lightSensor = null;
+    private static ProximitySensor proximitySensor = null;
+    private static TemperatureSensor temperatureSensor = null;
 
     SensedEnvironment(final Context context, final int interval) {
         Log.v(TAG, "SensedEnvironment() begin");

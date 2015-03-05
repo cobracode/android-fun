@@ -32,6 +32,8 @@
             </intent-filter>
         </activity>
 
+        <service android:name=".SensorService" />
+
         <receiver android:name=".IConnectivityManager">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />

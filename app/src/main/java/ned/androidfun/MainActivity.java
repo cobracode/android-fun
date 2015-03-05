@@ -1,6 +1,7 @@
 package ned.androidfun;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -11,9 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class MainActivity extends ActionBarActivity implements InternetListener {
@@ -51,6 +49,9 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
         initializeRadioButtons();
         initCellListener();
 
+        SensorService ss = new SensorService();
+        startService(new Intent(this, SensorService.class));
+
         //final String message = "the tree of life. it happens that many people in the western " +
         // "world are thinking about this on this day for reasons that have built up over " +
         // "millenia. but this tree of life is within us all no matter belief or geographic " +
@@ -58,32 +59,6 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
         // science has yet to come close to comprehending. expanding the feeling and idea to a " +
         // larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
-
-        TimerTask getSensorData = new TimerTask() {
-            @Override
-            public void run() {
-                final long startTime = System.currentTimeMillis();
-                final long runTime = 250;
-
-                Log.d(TAG, "run(): Activating environment sensors");
-                sensedEnvironment.registerListeners();
-
-                do {
-                    try {
-                        Log.d(TAG, "run(): Sleeping 1 second");
-                        Thread.sleep(runTime);
-                    } catch (final InterruptedException e) {
-                        Logger.log(TAG, "run(): Interrupted: " + e);
-                    }
-                } while (System.currentTimeMillis() < startTime + runTime);
-
-                Log.d(TAG, "run(): Deactivating environment sensors");
-                sensedEnvironment.unregisterListeners();
-            }
-        };
-
-        Timer timer = new Timer();
-        timer.schedule(getSensorData, 1000, 15 * 60000);
 
         Log.v(TAG, "onCreate() end");
     }
