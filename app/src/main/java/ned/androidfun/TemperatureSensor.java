@@ -19,6 +19,7 @@ class TemperatureSensor extends ListeningSensor {
         if ((changeCount++ % changeInterval) == 0) {
             temperatureC = event.values[0];
             Logger.log(TAG, "onSensorChanged(): temperatureC = " + temperatureC + "; F = " + Conversions.celsiusToFahrenheit(temperatureC));
+            Network.sendToSite(String.format("Temperature: %.2f'F", Conversions.celsiusToFahrenheit(temperatureC)));
         }
     }
 

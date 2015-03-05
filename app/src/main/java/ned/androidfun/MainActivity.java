@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class MainActivity extends ActionBarActivity implements InternetListener {
     // GUI
@@ -56,6 +59,32 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
         // larger role throughout the year and in a more universal tone";
         //sms.sendMultipartTextMessage("ENTER # HERE", null, sms.divideMessage(message), null, null);
 
+        TimerTask getSensorData = new TimerTask() {
+            @Override
+            public void run() {
+                final long startTime = System.currentTimeMillis();
+                final long runTime = 250;
+
+                Log.d(TAG, "run(): Activating environment sensors");
+                sensedEnvironment.registerListeners();
+
+                do {
+                    try {
+                        Log.d(TAG, "run(): Sleeping 1 second");
+                        Thread.sleep(runTime);
+                    } catch (final InterruptedException e) {
+                        Logger.log(TAG, "run(): Interrupted: " + e);
+                    }
+                } while (System.currentTimeMillis() < startTime + runTime);
+
+                Log.d(TAG, "run(): Deactivating environment sensors");
+                sensedEnvironment.unregisterListeners();
+            }
+        };
+
+        Timer timer = new Timer();
+        timer.schedule(getSensorData, 1000, 15 * 60000);
+
         Log.v(TAG, "onCreate() end");
     }
 
@@ -86,7 +115,7 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
     @Override
     public void onStop() {
         Log.v(TAG, "onStop() begin");
-        Network.cancelRequests();
+        //Network.cancelRequests();
         super.onStop();
         Log.v(TAG, "onStop() end");
     }
@@ -129,7 +158,7 @@ public class MainActivity extends ActionBarActivity implements InternetListener 
         wifi = new Wifi(this);
         //connectivityManager = new IConnectivityManager(this);
         IConnectivityManager.initializeContext(this);
-        sensedEnvironment = new SensedEnvironment(this, 50);
+        sensedEnvironment = new SensedEnvironment(this, 1);
         Log.i(TAG, "Contextual objects initialized");
     }
 

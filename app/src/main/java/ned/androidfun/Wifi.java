@@ -153,7 +153,6 @@ public class Wifi extends BroadcastReceiver {
                 final String wifiStatus = "Connected to wifi network " + connectedWifiNetwork;
 
                 Logger.printSay(wifiStatus);
-                Network.sendToSite(wifiStatus);
                 break;
             case DISCONNECTED:
                 // Prevent saying this twice, as each disconnection generates 2 of these intents

@@ -48,12 +48,11 @@ class PhoneListener extends PhoneStateListener {
         switch (state) {
             case TelephonyManager.CALL_STATE_IDLE:
                 callState = "idle";
-                //Parrot.say("phone is idle");
+                Network.sendToSite("Phone is hung up");
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
-                callState = "dialing, on a call, or on hold";
+                callState = "dialing, on a call, or on hold; possibly with ";
                 status = callState + from;
-                Parrot.say(status);
                 Network.sendToSite(status);
                 break;
             case TelephonyManager.CALL_STATE_RINGING:
@@ -67,7 +66,7 @@ class PhoneListener extends PhoneStateListener {
                 break;
         }
 
-        Log.v(TAG, "onCallStateChanged(): state: " + callState + "; from: " + from);
+        Log.d(TAG, "onCallStateChanged(): state: " + callState + "; from: " + from);
     }
 
     @Override

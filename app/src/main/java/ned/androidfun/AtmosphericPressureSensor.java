@@ -23,6 +23,8 @@ class AtmosphericPressureSensor extends ListeningSensor {
             Logger.log(TAG, "onSensorChanged(): millibars = " + millibars);
             Logger.log(TAG, "onSensorChanged(): alt = " +
                     Conversions.metersToFeet(sensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, millibars)) + " ft");
+            Network.sendToSite(String.format("Air pressure: %.2f mb | Estimated altitude: %.0f ft", millibars,
+                    Conversions.metersToFeet(sensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, millibars))));
         }
     }
 

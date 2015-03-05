@@ -23,6 +23,7 @@ class Network implements InternetListener {
     private static int requestCount = 0;
     private static RequestQueue requests = null;
     private static LinkedList<Request> storedRequests = new LinkedList<Request>();
+    private static String previousMsg;
 
     // Constants
     private static final String SITE = "http://www.scienceofspirituality.info";
@@ -111,34 +112,44 @@ class Network implements InternetListener {
     }
 
     public static void sendToSite(final String text) {
-        final StringRequest request = new StringRequest(
-                Request.Method.POST,
-                SITE_RECEIVER,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(final String response) {
-                        if (!response.equals(SITE_RESPONSE_SUCCESS)) {
-                            Logger.printSay("Site sent unexpected response");
-                            Logger.log(TAG, "onResponse(): " + response);
+        // Sometimes the same string is sent multiple times. Prevent that.
+        if (!text.equals(previousMsg)) {
+            // Add timestamp to text
+            final String timedMsg = Util.getTimestamp() + "|" + text;
+
+            final StringRequest request = new StringRequest(
+                    Request.Method.POST,
+                    SITE_RECEIVER,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(final String response) {
+                            if (!response.equals(SITE_RESPONSE_SUCCESS)) {
+                                Logger.printSay("Site sent unexpected response");
+                                Logger.log(TAG, "onResponse(): " + response);
+                            }
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(final VolleyError volleyError) {
-                        Log.w(TAG, "sendToSite(): " + volleyError);
-                    }
-                }) {
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(final VolleyError volleyError) {
+                            Log.w(TAG, "sendToSite(): " + volleyError);
+                        }
+                    }) {
 
-            @Override
-            protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("sendToSite", Util.getTimestamp() + "|" + text);
-                return params;
-            }
-        };
+                @Override
+                protected Map<String, String> getParams() throws com.android.volley.AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("sendToSite", timedMsg);
+                    return params;
+                }
+            };
 
-        addRequest(request);
+            addRequest(request);
+        } else {
+            Log.d(TAG, "sendToSite(): Discarding duplicate message: " + text);
+        }
+
+        previousMsg = text;
     }
 
     public static void cancelRequests() {
