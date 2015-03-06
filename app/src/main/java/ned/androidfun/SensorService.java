@@ -19,6 +19,8 @@ public class SensorService extends IntentService {
      */
     public SensorService() {
         super(TAG);
+
+        //sensedEnvironment = new SensedEnvironment(this, 1);
     }
 
     @Override
@@ -28,8 +30,11 @@ public class SensorService extends IntentService {
         sensedEnvironment = new SensedEnvironment(this, 1);
 
         final TimerTask getSensorData = new TimerTask() {
+            private static final String TAG = "TimerTask";
+
             @Override
             public void run() {
+                Log.d(TAG, "run() begin");
                 final long startTime = System.currentTimeMillis();
                 final long runTime = 300;
                 final long endTime = startTime + runTime;
@@ -51,11 +56,29 @@ public class SensorService extends IntentService {
         };
 
         // Run every 15 minutes, starting 1 second after service start
-        new Timer().schedule(getSensorData, 1000, 15 * 60000);
+        new Timer().schedule(getSensorData, 1000, 15 * 1000);
 
         // Stop & Destroy service
         stopSelf();
 
         Log.d(TAG, "onHandleIntent() end");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d(TAG, "onCreate() -");
+    }
+
+    @Override
+    public void onStart(final Intent intent, final int startId) {
+        super.onStart(intent, startId);
+        Log.d(TAG, "onStart(): intent: " + intent.toString() + "; startId: " + startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy() -");
+        super.onDestroy();
     }
 }

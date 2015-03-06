@@ -15,7 +15,7 @@ class Logger {
         if (null != text) {
             Log.i(tag, msg);
             final String existingText = text.getText().toString();
-            text.setText(" -- " + ++count + " - " + msg + "\n\n" + existingText);
+            text.setText(Util.getTimestamp() + "|" + ++count + "|" + msg + "\n" + existingText);
         }
     }
 
